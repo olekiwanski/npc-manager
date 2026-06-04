@@ -358,32 +358,32 @@ Phase 1 adds the third migration (`20260604020000_create_npc_has_npc.sql`), orde
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes on all new files
-- [x] 2.2 `npm run build` emits no TypeScript errors on new files
+- [x] 2.1 `npm run lint` passes on all new files — 7840de2
+- [x] 2.2 `npm run build` emits no TypeScript errors on new files — 7840de2
 
 #### Manual
 
-- [x] 2.3 POST /api/relationships between two owned same-campaign NPCs returns 201 with the relationship
-- [x] 2.4 POST with a foreign campaign/NPC or a cross-campaign pair returns 404
-- [x] 2.5 POST with from_npc_id === to_npc_id returns 400
-- [x] 2.6 DELETE /api/relationships/<id> removes the row
-- [x] 2.7 DELETE against another user's relationship returns 404
-- [x] 2.8 Unauthenticated requests return 401
+- [x] 2.3 POST /api/relationships between two owned same-campaign NPCs returns 201 with the relationship — 7840de2
+- [x] 2.4 POST with a foreign campaign/NPC or a cross-campaign pair returns 404 — 7840de2
+- [x] 2.5 POST with from_npc_id === to_npc_id returns 400 — 7840de2
+- [x] 2.6 DELETE /api/relationships/<id> removes the row — 7840de2
+- [x] 2.7 DELETE against another user's relationship returns 404 — 7840de2
+- [x] 2.8 Unauthenticated requests return 401 — 7840de2
 
 ### Phase 3: React Components
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes on all new files
-- [ ] 3.2 `npm run build` emits no TypeScript errors
-- [ ] 3.3 `npm run test` — `RelationshipSection.test.tsx` and `RelationshipRow.test.tsx` pass
+- [x] 3.1 `npm run lint` passes on all new files
+- [x] 3.2 `npm run build` emits no TypeScript errors
+- [x] 3.3 `npm run test` — `RelationshipSection.test.tsx` and `RelationshipRow.test.tsx` pass
 
 #### Manual
 
-- [ ] 3.4 RelationshipSection renders the add form (partner select, type, description) when an eligible partner exists
-- [ ] 3.5 RelationshipSection hides the form and shows the hint when the current NPC is the only one
-- [ ] 3.6 RelationshipRow shows partner name, type badge, description, direction indicator, and Delete
-- [ ] 3.7 Two-click delete confirm works and resets on external click
+- [x] 3.4 RelationshipSection renders the add form (partner select, type, description) when an eligible partner exists
+- [x] 3.5 RelationshipSection hides the form and shows the hint when the current NPC is the only one
+- [x] 3.6 RelationshipRow shows partner name, type badge, description, direction indicator, and Delete
+- [x] 3.7 Two-click delete confirm works and resets on external click
 
 ### Phase 4: NPC Detail Page Integration
 
