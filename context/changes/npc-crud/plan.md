@@ -388,33 +388,33 @@ Phase 1 adds the second migration (`20260604010000_create_npcs.sql`), ordered af
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes on all new files
-- [x] 2.2 `npm run build` emits no TypeScript errors on new files
+- [x] 2.1 `npm run lint` passes on all new files — 572359f
+- [x] 2.2 `npm run build` emits no TypeScript errors on new files — 572359f
 
 #### Manual
 
-- [x] 2.3 POST /api/npcs into an owned campaign returns 201 with the NPC
-- [x] 2.4 POST /api/npcs with a foreign `campaign_id` returns 404
-- [x] 2.5 PATCH /api/npcs/<id> updates and returns the NPC
-- [x] 2.6 DELETE /api/npcs/<id> removes the row
-- [x] 2.7 PATCH/DELETE against another user's NPC returns 404
-- [x] 2.8 Unauthenticated requests return 401
+- [x] 2.3 POST /api/npcs into an owned campaign returns 201 with the NPC — 572359f
+- [x] 2.4 POST /api/npcs with a foreign `campaign_id` returns 404 — 572359f
+- [x] 2.5 PATCH /api/npcs/<id> updates and returns the NPC — 572359f
+- [x] 2.6 DELETE /api/npcs/<id> removes the row — 572359f
+- [x] 2.7 PATCH/DELETE against another user's NPC returns 404 — 572359f
+- [x] 2.8 Unauthenticated requests return 401 — 572359f
 
 ### Phase 3: React Components
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes on all new files
-- [ ] 3.2 `npm run build` emits no TypeScript errors
-- [ ] 3.3 `npm run test` — `NpcForm.test.tsx` and `NpcCard.test.tsx` pass
+- [x] 3.1 `npm run lint` passes on all new files
+- [x] 3.2 `npm run build` emits no TypeScript errors
+- [x] 3.3 `npm run test` — `NpcForm.test.tsx` and `NpcCard.test.tsx` pass
 
 #### Manual
 
-- [ ] 3.4 NpcForm renders name/role/traits in create mode
-- [ ] 3.5 NpcForm pre-fills all three fields in edit mode
-- [ ] 3.6 NpcCard shows name, role, truncated traits, with title + Edit links and Delete
-- [ ] 3.7 Two-click delete confirm works and resets on external click
-- [ ] 3.8 NpcList shows the empty-state CTA when given an empty array
+- [x] 3.4 NpcForm renders name/role/traits in create mode
+- [x] 3.5 NpcForm pre-fills all three fields in edit mode
+- [x] 3.6 NpcCard shows name, role, truncated traits, with title + Edit links and Delete
+- [x] 3.7 Two-click delete confirm works and resets on external click
+- [x] 3.8 NpcList shows the empty-state CTA when given an empty array
 
 ### Phase 4: Pages & Navigation
 
