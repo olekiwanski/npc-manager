@@ -28,7 +28,10 @@ const npcResult = await supabase
   .select("*")
   .eq("campaign_id", id)
   .order("created_at", { ascending: false });
-const npcs = (npcResult.data ?? []) as Npc[];
+if (npcResult.error) {
+  return new Response("Failed to load NPCs", { status: 500 });
+}
+const npcs = npcResult.data as Npc[];
 ---
 
 <Layout title={campaign.name}>

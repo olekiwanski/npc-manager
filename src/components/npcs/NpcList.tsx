@@ -16,9 +16,12 @@ interface MutationResponse {
 export function NpcList({ initialNpcs, campaignId }: NpcListProps) {
   const [npcs, setNpcs] = useState<Npc[]>(initialNpcs);
   const [error, setError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
+    if (pendingId === id) return;
     setError(null);
+    setPendingId(id);
     try {
       const res = await fetch(`/api/npcs/${id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -29,6 +32,8 @@ export function NpcList({ initialNpcs, campaignId }: NpcListProps) {
       setNpcs((prev) => prev.filter((n) => n.id !== id));
     } catch {
       setError("Network error");
+    } finally {
+      setPendingId(null);
     }
   }
 

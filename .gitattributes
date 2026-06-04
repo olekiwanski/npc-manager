@@ -1,0 +1,13 @@
+# Enforce LF line endings in the repository regardless of local git config.
+# Prevents core.autocrlf=true on Windows from converting to CRLF on checkout,
+# which breaks `npm run lint` (Prettier reports "Delete ␍" on every line).
+* text=auto eol=lf
+
+# Binary files — leave untouched.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

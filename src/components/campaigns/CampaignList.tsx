@@ -23,6 +23,7 @@ export function CampaignList({ initialCampaigns }: CampaignListProps) {
   const [showArchived, setShowArchived] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   // initialCampaigns is the immutable SSR snapshot; never repaint from it after
   // a mutation. Switching filters always re-fetches the relevant status list.
@@ -51,7 +52,9 @@ export function CampaignList({ initialCampaigns }: CampaignListProps) {
   }
 
   async function mutate(id: string, method: "PATCH" | "DELETE", body?: Record<string, unknown>) {
+    if (pendingId === id) return;
     setError(null);
+    setPendingId(id);
     try {
       const res = await fetch(`/api/campaigns/${id}`, {
         method,
@@ -68,6 +71,8 @@ export function CampaignList({ initialCampaigns }: CampaignListProps) {
       setCampaigns((prev) => prev.filter((c) => c.id !== id));
     } catch {
       setError("Network error");
+    } finally {
+      setPendingId(null);
     }
   }
 

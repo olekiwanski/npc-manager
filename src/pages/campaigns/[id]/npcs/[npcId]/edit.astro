@@ -20,6 +20,9 @@ const npc = result.data as Npc | null;
 if (!npc) {
   return Astro.redirect(`/campaigns/${id}`);
 }
+if (npc.campaign_id !== id) {
+  return Astro.redirect(`/campaigns/${id}`);
+}
 ---
 
 <Layout title={`Edit ${npc.name}`}>

@@ -47,6 +47,15 @@ describe("CampaignList", () => {
     expect(screen.getByText("Beta")).toBeTruthy();
   });
 
+  it("shows ServerError when the filter fetch returns an error", async () => {
+    fetchMock.mockResolvedValue({ ok: false, json: () => Promise.resolve({ error: "Server error" }) });
+
+    render(<CampaignList initialCampaigns={[]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Archived" }));
+
+    expect(await screen.findByText("Server error")).toBeTruthy();
+  });
+
   it("fetches archived on toggle and re-fetches active on toggle-back (no stale SSR restore)", async () => {
     fetchMock.mockImplementation((url: string) => {
       if (url.includes("status=archived"))
