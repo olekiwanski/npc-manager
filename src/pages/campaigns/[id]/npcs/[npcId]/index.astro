@@ -20,10 +20,16 @@ const npc = result.data as Npc | null;
 if (!npc) {
   return Astro.redirect(`/campaigns/${id}`);
 }
+if (npc.campaign_id !== id) {
+  return Astro.redirect(`/campaigns/${id}`);
+}
 
 // The campaign roster feeds the partner picker and resolves partner names.
 const npcsResult = await supabase.from("npcs").select("*").eq("campaign_id", id).order("name");
-const npcs = (npcsResult.data ?? []) as Npc[];
+if (npcsResult.error) {
+  return new Response("Failed to load NPCs", { status: 500 });
+}
+const npcs = npcsResult.data as Npc[];
 
 // Every relationship touching this NPC, from either endpoint. Ascending created_at
 // keeps the list deterministic and matches the island's append-on-create order.
@@ -32,7 +38,10 @@ const relationshipsResult = await supabase
   .select("*")
   .or(`from_npc_id.eq.${npcId},to_npc_id.eq.${npcId}`)
   .order("created_at", { ascending: true });
-const relationships = (relationshipsResult.data ?? []) as Relationship[];
+if (relationshipsResult.error) {
+  return new Response("Failed to load relationships", { status: 500 });
+}
+const relationships = relationshipsResult.data as Relationship[];
 ---
 
 <Layout title={npc.name}>

@@ -17,7 +17,10 @@ const result = await supabase
   .eq("status", "active")
   .order("created_at", { ascending: false });
 
-const campaigns = (result.data ?? []) as Campaign[];
+if (result.error) {
+  return new Response("Internal Server Error", { status: 500 });
+}
+const campaigns = result.data as Campaign[];
 ---
 
 <Layout title="Campaigns">

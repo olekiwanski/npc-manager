@@ -16,6 +16,7 @@ export function CampaignCard({ campaign, onArchive, onUnarchive, onDelete }: Cam
   const [confirming, setConfirming] = useState<ConfirmAction | null>(null);
 
   // Any click outside an action button cancels a pending confirmation.
+  // stopPropagation in handle() prevents this listener from firing on the same click that set confirming.
   useEffect(() => {
     if (!confirming) return;
     const reset = () => {

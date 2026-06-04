@@ -35,6 +35,7 @@ export function RelationshipSection({
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<{ partnerId?: string; type?: string; description?: string }>({});
   const [serverError, setServerError] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   function nameFor(id: string): string {
     return campaignNpcs.find((n) => n.id === id)?.name ?? "Unknown NPC";
@@ -92,7 +93,9 @@ export function RelationshipSection({
   }
 
   async function handleDelete(id: string) {
+    if (pendingDeleteId === id) return;
     setServerError(null);
+    setPendingDeleteId(id);
     try {
       const res = await fetch(`/api/relationships/${id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -103,6 +106,8 @@ export function RelationshipSection({
       setRelationships((prev) => prev.filter((r) => r.id !== id));
     } catch {
       setServerError("Network error. Please try again.");
+    } finally {
+      setPendingDeleteId(null);
     }
   }
 

@@ -3,6 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 import { CampaignForm } from "@/components/campaigns/CampaignForm";
 
 // Middleware already gates /campaigns; this is a defensive safety check.
+// Pages that need a Supabase client (index.astro, edit.astro) use createClient() whose null check
+// doubles as an auth guard. This page has no SSR query so we check Astro.locals.user directly.
 if (!Astro.locals.user) {
   return Astro.redirect("/auth/signin");
 }

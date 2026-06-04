@@ -73,6 +73,15 @@ describe("NpcForm validation", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("shows ServerError when the API returns an error", async () => {
+    fetchMock.mockResolvedValue({ ok: false, json: () => Promise.resolve({ error: "Server error" }) });
+    render(<NpcForm campaignId="camp1" />);
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Gundren" } });
+    fireEvent.click(screen.getByRole("button", { name: /create npc/i }));
+
+    expect(await screen.findByText("Server error")).toBeTruthy();
+  });
+
   it("POSTs to /api/npcs with campaign_id when the form is valid", async () => {
     fetchMock.mockResolvedValue({ ok: true, json: () => Promise.resolve({ data: {} }) });
     render(<NpcForm campaignId="camp1" />);

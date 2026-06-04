@@ -71,6 +71,7 @@ export function CampaignForm({ campaign }: CampaignFormProps) {
   }
 
   return (
+    // React 19 form action — keeps useFormStatus pending tracking in SubmitButton working
     <form action={handleSubmit} className="space-y-4" noValidate>
       <FormField
         id="name"
