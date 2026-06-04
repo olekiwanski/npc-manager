@@ -29,11 +29,11 @@ Game Masters running TTRPG campaigns manage dozens of NPCs across motivations, b
 
 | ID   | Change ID         | Outcome (user can …)                                                                                                    | Prerequisites | PRD refs                                                   | Status   |
 |------|-------------------|-------------------------------------------------------------------------------------------------------------------------|---------------|------------------------------------------------------------|----------|
-| F-01 | db-schema-rls     | (foundation) schema + RLS for campaigns, NPCs, relationships live; queries data-isolated per user                       | —             | FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, Access Control | ready    |
-| S-01 | campaigns-crud    | create, view, edit, and delete own campaigns; existing auth flow verified end-to-end                                    | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005                     | proposed |
-| S-02 | npc-crud          | add, view, edit, and delete NPCs within a campaign                                                                      | F-01, S-01    | FR-006, FR-007                                             | proposed |
-| S-03 | npc-relationships | create, view, and delete relationships between two NPCs                                                                 | S-02          | FR-008, FR-009                                             | proposed |
-| S-04 | npc-ai-reaction   | submit a natural-language scenario and receive a streamed in-character AI response referencing NPC traits and relationships | S-03          | FR-010, US-01                                              | proposed |
+| F-01 | db-schema-rls     | (foundation) schema + RLS for campaigns, NPCs, relationships live; queries data-isolated per user                       | —             | FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, Access Control | done     |
+| S-01 | campaigns-crud    | create, view, edit, and delete own campaigns; existing auth flow verified end-to-end                                    | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005                     | done     |
+| S-02 | npc-crud          | add, view, edit, and delete NPCs within a campaign                                                                      | F-01, S-01    | FR-006, FR-007                                             | done     |
+| S-03 | npc-relationships | create, view, and delete relationships between two NPCs                                                                 | S-02          | FR-008, FR-009                                             | done     |
+| S-04 | npc-ai-reaction   | submit a natural-language scenario and receive a streamed in-character AI response referencing NPC traits and relationships | S-03          | FR-010, US-01                                              | ready    |
 
 ## Baseline
 
@@ -60,7 +60,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Musi być na miejscu przed pierwszym user-facing slice — błędy w RLS ujawniają się dopiero przy cross-account query; wychwycenie ich przed UI jest tańsze niż po.
-- **Status:** ready
+- **Status:** done — schema + RLS dla campaigns, npcs i npc_has_npc dostarczone przez migracje poszczególnych slice'ów (`supabase/migrations/`), nie jako osobny change `db-schema-rls`.
 
 ## Slices
 
@@ -74,7 +74,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Auth jest present w baseline, ale nie był jeszcze testowany pod kątem session-gated product routes; pierwsza integracja kampanii to de facto pierwszy real test RLS — jeśli izolacja danych zawiedzie, widać to tu.
-- **Status:** proposed
+- **Status:** done — zmergowane (PR #1).
 
 ### S-02: NPC — zarządzanie
 
@@ -85,9 +85,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:**
-  - Jakie jest zachowanie cascade przy usunięciu NPC posiadającego relacje? — Owner: user. Block: no. (FR-007 notes this must be defined at implementation; nie blokuje planowania.)
+  - ~~Jakie jest zachowanie cascade przy usunięciu NPC posiadającego relacje?~~ — RESOLVED w S-03: oba FK NPC w `npc_has_npc` są `on delete cascade`, więc usunięcie NPC kasuje każdą relację, w której występuje (z obu stron). Zweryfikowane na poziomie DB.
 - **Risk:** Profil NPC (name, role, traits) jest bezpośrednim wejściem do zapytania AI — jeśli model danych jest tu zbyt ograniczony, FR-010 będzie wymagał rework; bezpieczniej zwalidować kształt profilu przed podłączeniem warstwy AI.
-- **Status:** proposed
+- **Status:** done — zmergowane (PR #2).
 
 ### S-03: Relacje między postaciami
 
@@ -99,7 +99,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Relacje są kontekstem relacyjnym przekazywanym do zapytania AI w S-04; niepełne lub źle ustrukturyzowane dane relacyjne obniżą jakość odpowiedzi AI — lepiej zwalidować kształt danych tu, zanim zostaną podłączone do warstwy AI.
-- **Status:** proposed
+- **Status:** done — zmergowane (PR #3, commity p1–p4 + epilog). Czeka na `/10x-archive`.
 
 ### S-04: Reakcja NPC — zapytanie AI
 
@@ -112,17 +112,17 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Klucz Anthropic API musi być dostępny w środowisku deploymentu. — Owner: user. Block: no. (Klucz potrzebny przy implementacji/deploy, nie przy planowaniu.)
 - **Risk:** Integracja AI dodaje zewnętrzne opóźnienie i koszt; NFR 2 sekund widocznego feedbacku wymaga obsługi streaming response — to najwyższe ryzyko techniczne w roadmapie; celowo umieszczone jako ostatnie, żeby CRUD był zwalidowany przed podłączeniem warstwy AI.
-- **Status:** proposed
+- **Status:** ready — prerequisite S-03 ukończony; gotowy do `/10x-plan npc-ai-reaction`.
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID         | Suggested issue title                                      | Ready for `/10x-plan` | Notes                          |
 |------------|-------------------|------------------------------------------------------------|------------------------|--------------------------------|
-| F-01       | db-schema-rls     | Set up DB schema + RLS for campaigns, NPCs, relationships  | yes                    | Run `/10x-plan db-schema-rls`  |
-| S-01       | campaigns-crud    | Campaigns CRUD — create, list, edit, delete                | no                     | Awaits F-01                    |
-| S-02       | npc-crud          | NPC CRUD — add, view, edit, delete                         | no                     | Awaits S-01                    |
-| S-03       | npc-relationships | NPC Relationships — create, view, delete                   | no                     | Awaits S-02                    |
-| S-04       | npc-ai-reaction   | NPC AI reaction query with streaming response              | no                     | Awaits S-03; north star        |
+| F-01       | db-schema-rls     | Set up DB schema + RLS for campaigns, NPCs, relationships  | —                      | Done — dostarczone w migracjach slice'ów |
+| S-01       | campaigns-crud    | Campaigns CRUD — create, list, edit, delete                | —                      | Done — zmergowane (PR #1)      |
+| S-02       | npc-crud          | NPC CRUD — add, view, edit, delete                         | —                      | Done — zmergowane (PR #2)      |
+| S-03       | npc-relationships | NPC Relationships — create, view, delete                   | —                      | Done — zmergowane (PR #3)      |
+| S-04       | npc-ai-reaction   | NPC AI reaction query with streaming response              | yes                    | Run `/10x-plan npc-ai-reaction`; north star |
 
 ## Open Roadmap Questions
 
