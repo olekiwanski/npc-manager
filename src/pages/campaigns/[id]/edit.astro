@@ -1,0 +1,39 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { CampaignForm } from "@/components/campaigns/CampaignForm";
+import { createClient } from "@/lib/supabase";
+import type { Campaign } from "@/types";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (!supabase) {
+  return Astro.redirect("/auth/signin");
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect("/campaigns");
+}
+
+// RLS scopes this to the current user; a non-owner / missing id yields no row.
+const result = await supabase.from("campaigns").select("*").eq("id", id).maybeSingle();
+const campaign = result.data as Campaign | null;
+if (!campaign) {
+  return Astro.redirect("/campaigns");
+}
+---
+
+<Layout title={`Edit ${campaign.name}`}>
+  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4">
+    <div class="mt-16 w-full max-w-lg rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Edit Campaign
+        </h1>
+        <a href="/campaigns" class="text-sm text-purple-300 transition-colors hover:text-purple-100 hover:underline">
+          ← Back
+        </a>
+      </div>
+      <CampaignForm campaign={campaign} client:load />
+    </div>
+  </div>
+</Layout>
