@@ -420,17 +420,17 @@ Phase 1 adds the second migration (`20260604010000_create_npcs.sql`), ordered af
 
 #### Automated
 
-- [x] 4.1 `npm run build` completes with no errors
-- [x] 4.2 `npm run lint` passes across all changed files
-- [x] 4.3 `npm run test` — existing `CampaignCard.test.tsx` still passes
+- [x] 4.1 `npm run build` completes with no errors — 2646d21
+- [x] 4.2 `npm run lint` passes across all changed files — 2646d21
+- [x] 4.3 `npm run test` — existing `CampaignCard.test.tsx` still passes — 2646d21
 
 #### Manual
 
-- [x] 4.4 Unauthenticated /campaigns/<id> redirects to /auth/signin
-- [x] 4.5 Clicking a campaign card title opens its detail page with the NPC roster
-- [x] 4.6 Full create flow works end-to-end (lands on campaign detail with new NPC)
-- [x] 4.7 NPC detail read view shows role and full traits
-- [x] 4.8 Full edit flow works end-to-end
-- [x] 4.9 Two-click delete removes the NPC from list and DB
-- [x] 4.10 Deleting the parent campaign cascade-deletes its NPCs
-- [x] 4.11 User B cannot reach User A's campaign detail page or NPCs
+- [x] 4.4 Unauthenticated /campaigns/<id> redirects to /auth/signin — 2646d21
+- [x] 4.5 Clicking a campaign card title opens its detail page with the NPC roster — 2646d21
+- [x] 4.6 Full create flow works end-to-end (lands on campaign detail with new NPC) — 2646d21
+- [x] 4.7 NPC detail read view shows role and full traits — 2646d21
+- [x] 4.8 Full edit flow works end-to-end — 2646d21
+- [x] 4.9 Two-click delete removes the NPC from list and DB — 2646d21
+- [x] 4.10 Deleting the parent campaign cascade-deletes its NPCs — 2646d21
+- [x] 4.11 User B cannot reach User A's campaign detail page or NPCs — 2646d21
