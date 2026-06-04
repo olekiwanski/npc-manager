@@ -373,32 +373,32 @@ Phase 1 adds the second migration (`20260604010000_create_npcs.sql`), ordered af
 
 #### Automated
 
-- [x] 1.1 Migration file exists at `supabase/migrations/20260604010000_create_npcs.sql`
-- [x] 1.2 `npx supabase db reset` completes without error
+- [x] 1.1 Migration file exists at `supabase/migrations/20260604010000_create_npcs.sql` — f738424
+- [x] 1.2 `npx supabase db reset` completes without error — f738424
 
 #### Manual
 
-- [x] 1.3 `npcs` table visible in Studio with all columns, FKs, and the `(campaign_id)` index
-- [x] 1.4 RLS enabled; all four policies present with correct definitions
-- [x] 1.5 Insert into own campaign succeeds; insert with a foreign `campaign_id` is RLS-rejected
-- [x] 1.6 Deleting a campaign cascade-deletes its NPCs
-- [x] 1.7 Cross-account isolation verified (user B sees none of user A's NPCs)
+- [x] 1.3 `npcs` table visible in Studio with all columns, FKs, and the `(campaign_id)` index — f738424
+- [x] 1.4 RLS enabled; all four policies present with correct definitions — f738424
+- [x] 1.5 Insert into own campaign succeeds; insert with a foreign `campaign_id` is RLS-rejected — f738424
+- [x] 1.6 Deleting a campaign cascade-deletes its NPCs — f738424
+- [x] 1.7 Cross-account isolation verified (user B sees none of user A's NPCs) — f738424
 
 ### Phase 2: Types & API Routes
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes on all new files
-- [ ] 2.2 `npm run build` emits no TypeScript errors on new files
+- [x] 2.1 `npm run lint` passes on all new files
+- [x] 2.2 `npm run build` emits no TypeScript errors on new files
 
 #### Manual
 
-- [ ] 2.3 POST /api/npcs into an owned campaign returns 201 with the NPC
-- [ ] 2.4 POST /api/npcs with a foreign `campaign_id` returns 404
-- [ ] 2.5 PATCH /api/npcs/<id> updates and returns the NPC
-- [ ] 2.6 DELETE /api/npcs/<id> removes the row
-- [ ] 2.7 PATCH/DELETE against another user's NPC returns 404
-- [ ] 2.8 Unauthenticated requests return 401
+- [x] 2.3 POST /api/npcs into an owned campaign returns 201 with the NPC
+- [x] 2.4 POST /api/npcs with a foreign `campaign_id` returns 404
+- [x] 2.5 PATCH /api/npcs/<id> updates and returns the NPC
+- [x] 2.6 DELETE /api/npcs/<id> removes the row
+- [x] 2.7 PATCH/DELETE against another user's NPC returns 404
+- [x] 2.8 Unauthenticated requests return 401
 
 ### Phase 3: React Components
 
