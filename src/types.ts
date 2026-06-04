@@ -50,3 +50,28 @@ export interface UpdateNpcDto {
   role?: string | null;
   traits?: string | null;
 }
+
+/**
+ * A directed relationship between two NPCs within one campaign. Mirrors the
+ * `npc_has_npc` DB row. Rows are immutable after creation (no edit path), so
+ * there is no `updated_at`.
+ */
+export interface Relationship {
+  id: string;
+  user_id: string;
+  campaign_id: string;
+  from_npc_id: string;
+  to_npc_id: string;
+  type: string;
+  description: string | null;
+  created_at: string;
+}
+
+/** Payload for creating a relationship (POST /api/relationships). No update DTO — there is no edit path. */
+export interface CreateRelationshipDto {
+  campaign_id: string;
+  from_npc_id: string;
+  to_npc_id: string;
+  type: string;
+  description?: string | null;
+}
