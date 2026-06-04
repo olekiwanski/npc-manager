@@ -359,31 +359,31 @@ For production, run `npx wrangler secret put` for Supabase credentials (already 
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes on all new files
-- [x] 2.2 TypeScript compilation emits no errors on new files
+- [x] 2.1 `npm run lint` passes on all new files — b43b4fb
+- [x] 2.2 TypeScript compilation emits no errors on new files — b43b4fb
 
 #### Manual
 
-- [x] 2.3 GET /api/campaigns returns `{ data: [] }` for a new user
-- [x] 2.4 POST /api/campaigns creates a campaign and returns 201
-- [x] 2.5 PATCH /api/campaigns/<id> updates and returns the campaign
-- [x] 2.6 DELETE /api/campaigns/<id> removes the row
-- [x] 2.7 Unauthenticated requests return 401
+- [x] 2.3 GET /api/campaigns returns `{ data: [] }` for a new user — b43b4fb
+- [x] 2.4 POST /api/campaigns creates a campaign and returns 201 — b43b4fb
+- [x] 2.5 PATCH /api/campaigns/<id> updates and returns the campaign — b43b4fb
+- [x] 2.6 DELETE /api/campaigns/<id> removes the row — b43b4fb
+- [x] 2.7 Unauthenticated requests return 401 — b43b4fb
 
 ### Phase 3: React Components
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes on all three new component files
-- [ ] 3.2 TypeScript compilation emits no errors
+- [x] 3.1 `npm run lint` passes on all three new component files
+- [x] 3.2 TypeScript compilation emits no errors
 
 #### Manual
 
-- [ ] 3.3 CampaignForm renders correctly in create mode (name + description fields)
-- [ ] 3.4 CampaignForm pre-fills and shows status select in edit mode
-- [ ] 3.5 CampaignCard two-click confirm works for both Archive and Delete
-- [ ] 3.6 CampaignList shows empty state when given an empty array
-- [ ] 3.7 Filter toggle loads archived campaigns from API
+- [x] 3.3 CampaignForm renders correctly in create mode (name + description fields)
+- [x] 3.4 CampaignForm pre-fills and shows status select in edit mode
+- [x] 3.5 CampaignCard two-click confirm works for both Archive and Delete
+- [x] 3.6 CampaignList shows empty state when given an empty array
+- [x] 3.7 Filter toggle loads archived campaigns from API
 
 ### Phase 4: Pages & Navigation
 
