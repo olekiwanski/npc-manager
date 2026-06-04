@@ -389,17 +389,17 @@ Phase 1 adds the third migration (`20260604020000_create_npc_has_npc.sql`), orde
 
 #### Automated
 
-- [x] 4.1 `npm run build` completes with no errors
-- [x] 4.2 `npm run lint` passes across all changed files
-- [x] 4.3 `npm run test` — existing NPC component tests still pass
+- [x] 4.1 `npm run build` completes with no errors — d8bcac7
+- [x] 4.2 `npm run lint` passes across all changed files — d8bcac7
+- [x] 4.3 `npm run test` — existing NPC component tests still pass — d8bcac7
 
 #### Manual
 
-- [x] 4.4 Unauthenticated /campaigns/<id>/npcs/<npcId> redirects to /auth/signin
-- [x] 4.5 Detail page shows the profile and a Relationships section below it
-- [x] 4.6 Adding a relationship (pick partner, type, description) shows it immediately
-- [x] 4.7 The relationship appears on the partner NPC's page, labeled incoming
-- [x] 4.8 Form hidden + hint shown when the campaign has a single NPC
-- [x] 4.9 Two-click delete removes the relationship from the list and DB
-- [x] 4.10 Deleting one NPC cascade-deletes its relationships
-- [x] 4.11 User B cannot see/delete User A's relationships or link to User A's NPCs
+- [x] 4.4 Unauthenticated /campaigns/<id>/npcs/<npcId> redirects to /auth/signin — d8bcac7
+- [x] 4.5 Detail page shows the profile and a Relationships section below it — d8bcac7
+- [x] 4.6 Adding a relationship (pick partner, type, description) shows it immediately — d8bcac7
+- [x] 4.7 The relationship appears on the partner NPC's page, labeled incoming — d8bcac7
+- [x] 4.8 Form hidden + hint shown when the campaign has a single NPC — d8bcac7
+- [x] 4.9 Two-click delete removes the relationship from the list and DB — d8bcac7
+- [x] 4.10 Deleting one NPC cascade-deletes its relationships — d8bcac7
+- [x] 4.11 User B cannot see/delete User A's relationships or link to User A's NPCs — d8bcac7
