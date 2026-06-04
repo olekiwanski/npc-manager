@@ -404,33 +404,33 @@ Phase 1 adds the second migration (`20260604010000_create_npcs.sql`), ordered af
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes on all new files
-- [x] 3.2 `npm run build` emits no TypeScript errors
-- [x] 3.3 `npm run test` — `NpcForm.test.tsx` and `NpcCard.test.tsx` pass
+- [x] 3.1 `npm run lint` passes on all new files — 6ac48a2
+- [x] 3.2 `npm run build` emits no TypeScript errors — 6ac48a2
+- [x] 3.3 `npm run test` — `NpcForm.test.tsx` and `NpcCard.test.tsx` pass — 6ac48a2
 
 #### Manual
 
-- [x] 3.4 NpcForm renders name/role/traits in create mode
-- [x] 3.5 NpcForm pre-fills all three fields in edit mode
-- [x] 3.6 NpcCard shows name, role, truncated traits, with title + Edit links and Delete
-- [x] 3.7 Two-click delete confirm works and resets on external click
-- [x] 3.8 NpcList shows the empty-state CTA when given an empty array
+- [x] 3.4 NpcForm renders name/role/traits in create mode — 6ac48a2
+- [x] 3.5 NpcForm pre-fills all three fields in edit mode — 6ac48a2
+- [x] 3.6 NpcCard shows name, role, truncated traits, with title + Edit links and Delete — 6ac48a2
+- [x] 3.7 Two-click delete confirm works and resets on external click — 6ac48a2
+- [x] 3.8 NpcList shows the empty-state CTA when given an empty array — 6ac48a2
 
 ### Phase 4: Pages & Navigation
 
 #### Automated
 
-- [ ] 4.1 `npm run build` completes with no errors
-- [ ] 4.2 `npm run lint` passes across all changed files
-- [ ] 4.3 `npm run test` — existing `CampaignCard.test.tsx` still passes
+- [x] 4.1 `npm run build` completes with no errors
+- [x] 4.2 `npm run lint` passes across all changed files
+- [x] 4.3 `npm run test` — existing `CampaignCard.test.tsx` still passes
 
 #### Manual
 
-- [ ] 4.4 Unauthenticated /campaigns/<id> redirects to /auth/signin
-- [ ] 4.5 Clicking a campaign card title opens its detail page with the NPC roster
-- [ ] 4.6 Full create flow works end-to-end (lands on campaign detail with new NPC)
-- [ ] 4.7 NPC detail read view shows role and full traits
-- [ ] 4.8 Full edit flow works end-to-end
-- [ ] 4.9 Two-click delete removes the NPC from list and DB
-- [ ] 4.10 Deleting the parent campaign cascade-deletes its NPCs
-- [ ] 4.11 User B cannot reach User A's campaign detail page or NPCs
+- [x] 4.4 Unauthenticated /campaigns/<id> redirects to /auth/signin
+- [x] 4.5 Clicking a campaign card title opens its detail page with the NPC roster
+- [x] 4.6 Full create flow works end-to-end (lands on campaign detail with new NPC)
+- [x] 4.7 NPC detail read view shows role and full traits
+- [x] 4.8 Full edit flow works end-to-end
+- [x] 4.9 Two-click delete removes the NPC from list and DB
+- [x] 4.10 Deleting the parent campaign cascade-deletes its NPCs
+- [x] 4.11 User B cannot reach User A's campaign detail page or NPCs
