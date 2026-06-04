@@ -44,7 +44,11 @@ export function CampaignCard({ campaign, onArchive, onUnarchive, onDelete }: Cam
   return (
     <div className="flex flex-col rounded-2xl border border-white/10 bg-white/10 p-5 text-white backdrop-blur-xl">
       <div className="mb-2 flex items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold break-words">{campaign.name}</h3>
+        <h3 className="text-lg font-semibold break-words">
+          <a href={`/campaigns/${campaign.id}`} className="transition-colors hover:text-purple-200">
+            {campaign.name}
+          </a>
+        </h3>
         <span
           className={cn(
             "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
