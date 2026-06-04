@@ -341,34 +341,34 @@ Phase 1 adds the third migration (`20260604020000_create_npc_has_npc.sql`), orde
 
 #### Automated
 
-- [x] 1.1 Migration file exists at `supabase/migrations/20260604020000_create_npc_has_npc.sql`
-- [x] 1.2 `npx supabase db reset` completes without error
+- [x] 1.1 Migration file exists at `supabase/migrations/20260604020000_create_npc_has_npc.sql` — a4f7b82
+- [x] 1.2 `npx supabase db reset` completes without error — a4f7b82
 
 #### Manual
 
-- [x] 1.3 `npc_has_npc` table visible in Studio with all columns, FKs, the self-relationship CHECK, and both indexes
-- [x] 1.4 RLS enabled; all three policies present with correct definitions
-- [x] 1.5 Insert between two owned same-campaign NPCs succeeds; foreign-NPC or cross-campaign insert is RLS-rejected
-- [x] 1.6 Self-relationship insert is rejected by the CHECK constraint
-- [x] 1.7 Deleting an NPC cascade-deletes its relationships (both directions)
-- [x] 1.8 Deleting a campaign cascade-deletes its NPCs and their relationships
-- [x] 1.9 Cross-account isolation verified (user B sees none of user A's relationships)
+- [x] 1.3 `npc_has_npc` table visible in Studio with all columns, FKs, the self-relationship CHECK, and both indexes — a4f7b82
+- [x] 1.4 RLS enabled; all three policies present with correct definitions — a4f7b82
+- [x] 1.5 Insert between two owned same-campaign NPCs succeeds; foreign-NPC or cross-campaign insert is RLS-rejected — a4f7b82
+- [x] 1.6 Self-relationship insert is rejected by the CHECK constraint — a4f7b82
+- [x] 1.7 Deleting an NPC cascade-deletes its relationships (both directions) — a4f7b82
+- [x] 1.8 Deleting a campaign cascade-deletes its NPCs and their relationships — a4f7b82
+- [x] 1.9 Cross-account isolation verified (user B sees none of user A's relationships) — a4f7b82
 
 ### Phase 2: Types & API Routes
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes on all new files
-- [ ] 2.2 `npm run build` emits no TypeScript errors on new files
+- [x] 2.1 `npm run lint` passes on all new files
+- [x] 2.2 `npm run build` emits no TypeScript errors on new files
 
 #### Manual
 
-- [ ] 2.3 POST /api/relationships between two owned same-campaign NPCs returns 201 with the relationship
-- [ ] 2.4 POST with a foreign campaign/NPC or a cross-campaign pair returns 404
-- [ ] 2.5 POST with from_npc_id === to_npc_id returns 400
-- [ ] 2.6 DELETE /api/relationships/<id> removes the row
-- [ ] 2.7 DELETE against another user's relationship returns 404
-- [ ] 2.8 Unauthenticated requests return 401
+- [x] 2.3 POST /api/relationships between two owned same-campaign NPCs returns 201 with the relationship
+- [x] 2.4 POST with a foreign campaign/NPC or a cross-campaign pair returns 404
+- [x] 2.5 POST with from_npc_id === to_npc_id returns 400
+- [x] 2.6 DELETE /api/relationships/<id> removes the row
+- [x] 2.7 DELETE against another user's relationship returns 404
+- [x] 2.8 Unauthenticated requests return 401
 
 ### Phase 3: React Components
 
