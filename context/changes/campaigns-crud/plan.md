@@ -374,32 +374,32 @@ For production, run `npx wrangler secret put` for Supabase credentials (already 
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes on all three new component files
-- [x] 3.2 TypeScript compilation emits no errors
+- [x] 3.1 `npm run lint` passes on all three new component files — c1d76b8
+- [x] 3.2 TypeScript compilation emits no errors — c1d76b8
 
 #### Manual
 
-- [x] 3.3 CampaignForm renders correctly in create mode (name + description fields)
-- [x] 3.4 CampaignForm pre-fills and shows status select in edit mode
-- [x] 3.5 CampaignCard two-click confirm works for both Archive and Delete
-- [x] 3.6 CampaignList shows empty state when given an empty array
-- [x] 3.7 Filter toggle loads archived campaigns from API
+- [x] 3.3 CampaignForm renders correctly in create mode (name + description fields) — c1d76b8
+- [x] 3.4 CampaignForm pre-fills and shows status select in edit mode — c1d76b8
+- [x] 3.5 CampaignCard two-click confirm works for both Archive and Delete — c1d76b8
+- [x] 3.6 CampaignList shows empty state when given an empty array — c1d76b8
+- [x] 3.7 Filter toggle loads archived campaigns from API — c1d76b8
 
 ### Phase 4: Pages & Navigation
 
 #### Automated
 
-- [ ] 4.1 `npm run build` completes with no errors
-- [ ] 4.2 `npm run lint` passes across all changed files
+- [x] 4.1 `npm run build` completes with no errors
+- [x] 4.2 `npm run lint` passes across all changed files
 
 #### Manual
 
-- [ ] 4.3 Unauthenticated /campaigns redirects to /auth/signin
-- [ ] 4.4 Post-login landing page is /campaigns
-- [ ] 4.5 Topbar shows "Campaigns" link for authenticated users
-- [ ] 4.6 /dashboard redirects to /campaigns (301)
-- [ ] 4.7 Full create → list flow works end-to-end
-- [ ] 4.8 Full edit flow works end-to-end
-- [ ] 4.9 Archive and unarchive flow works with filter toggle
-- [ ] 4.10 Two-click delete removes campaign from list and DB
-- [ ] 4.11 User B cannot see User A's campaigns
+- [x] 4.3 Unauthenticated /campaigns redirects to /auth/signin
+- [x] 4.4 Post-login landing page is /campaigns
+- [x] 4.5 Topbar shows "Campaigns" link for authenticated users
+- [x] 4.6 /dashboard redirects to /campaigns (301)
+- [x] 4.7 Full create → list flow works end-to-end
+- [x] 4.8 Full edit flow works end-to-end
+- [x] 4.9 Archive and unarchive flow works with filter toggle
+- [x] 4.10 Two-click delete removes campaign from list and DB
+- [x] 4.11 User B cannot see User A's campaigns

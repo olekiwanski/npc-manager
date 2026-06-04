@@ -65,6 +65,11 @@ const astroConfig = tseslint.config({
     "astro/no-set-html-directive": "error",
     "astro/no-unused-css-selector": "warn",
     "astro/prefer-class-list-directive": "warn",
+    // astro-eslint-parser represents frontmatter top-level `return` (e.g.
+    // `return Astro.redirect(...)`) with a node whose parent the rule can't
+    // resolve, crashing the linter. The rule adds little value in .astro
+    // frontmatter (server code, no JSX event handlers), so disable it here.
+    "@typescript-eslint/no-misused-promises": "off",
   },
 });
 
