@@ -389,17 +389,17 @@ For production, run `npx wrangler secret put` for Supabase credentials (already 
 
 #### Automated
 
-- [x] 4.1 `npm run build` completes with no errors
-- [x] 4.2 `npm run lint` passes across all changed files
+- [x] 4.1 `npm run build` completes with no errors — c0a89be
+- [x] 4.2 `npm run lint` passes across all changed files — c0a89be
 
 #### Manual
 
-- [x] 4.3 Unauthenticated /campaigns redirects to /auth/signin
-- [x] 4.4 Post-login landing page is /campaigns
-- [x] 4.5 Topbar shows "Campaigns" link for authenticated users
-- [x] 4.6 /dashboard redirects to /campaigns (301)
-- [x] 4.7 Full create → list flow works end-to-end
-- [x] 4.8 Full edit flow works end-to-end
-- [x] 4.9 Archive and unarchive flow works with filter toggle
-- [x] 4.10 Two-click delete removes campaign from list and DB
-- [x] 4.11 User B cannot see User A's campaigns
+- [x] 4.3 Unauthenticated /campaigns redirects to /auth/signin — c0a89be
+- [x] 4.4 Post-login landing page is /campaigns — c0a89be
+- [x] 4.5 Topbar shows "Campaigns" link for authenticated users — c0a89be
+- [x] 4.6 /dashboard redirects to /campaigns (301) — c0a89be
+- [x] 4.7 Full create → list flow works end-to-end — c0a89be
+- [x] 4.8 Full edit flow works end-to-end — c0a89be
+- [x] 4.9 Archive and unarchive flow works with filter toggle — c0a89be
+- [x] 4.10 Two-click delete removes campaign from list and DB — c0a89be
+- [x] 4.11 User B cannot see User A's campaigns — c0a89be
