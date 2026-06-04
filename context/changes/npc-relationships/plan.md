@@ -374,32 +374,32 @@ Phase 1 adds the third migration (`20260604020000_create_npc_has_npc.sql`), orde
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes on all new files
-- [x] 3.2 `npm run build` emits no TypeScript errors
-- [x] 3.3 `npm run test` — `RelationshipSection.test.tsx` and `RelationshipRow.test.tsx` pass
+- [x] 3.1 `npm run lint` passes on all new files — cfeb353
+- [x] 3.2 `npm run build` emits no TypeScript errors — cfeb353
+- [x] 3.3 `npm run test` — `RelationshipSection.test.tsx` and `RelationshipRow.test.tsx` pass — cfeb353
 
 #### Manual
 
-- [x] 3.4 RelationshipSection renders the add form (partner select, type, description) when an eligible partner exists
-- [x] 3.5 RelationshipSection hides the form and shows the hint when the current NPC is the only one
-- [x] 3.6 RelationshipRow shows partner name, type badge, description, direction indicator, and Delete
-- [x] 3.7 Two-click delete confirm works and resets on external click
+- [x] 3.4 RelationshipSection renders the add form (partner select, type, description) when an eligible partner exists — cfeb353
+- [x] 3.5 RelationshipSection hides the form and shows the hint when the current NPC is the only one — cfeb353
+- [x] 3.6 RelationshipRow shows partner name, type badge, description, direction indicator, and Delete — cfeb353
+- [x] 3.7 Two-click delete confirm works and resets on external click — cfeb353
 
 ### Phase 4: NPC Detail Page Integration
 
 #### Automated
 
-- [ ] 4.1 `npm run build` completes with no errors
-- [ ] 4.2 `npm run lint` passes across all changed files
-- [ ] 4.3 `npm run test` — existing NPC component tests still pass
+- [x] 4.1 `npm run build` completes with no errors
+- [x] 4.2 `npm run lint` passes across all changed files
+- [x] 4.3 `npm run test` — existing NPC component tests still pass
 
 #### Manual
 
-- [ ] 4.4 Unauthenticated /campaigns/<id>/npcs/<npcId> redirects to /auth/signin
-- [ ] 4.5 Detail page shows the profile and a Relationships section below it
-- [ ] 4.6 Adding a relationship (pick partner, type, description) shows it immediately
-- [ ] 4.7 The relationship appears on the partner NPC's page, labeled incoming
-- [ ] 4.8 Form hidden + hint shown when the campaign has a single NPC
-- [ ] 4.9 Two-click delete removes the relationship from the list and DB
-- [ ] 4.10 Deleting one NPC cascade-deletes its relationships
-- [ ] 4.11 User B cannot see/delete User A's relationships or link to User A's NPCs
+- [x] 4.4 Unauthenticated /campaigns/<id>/npcs/<npcId> redirects to /auth/signin
+- [x] 4.5 Detail page shows the profile and a Relationships section below it
+- [x] 4.6 Adding a relationship (pick partner, type, description) shows it immediately
+- [x] 4.7 The relationship appears on the partner NPC's page, labeled incoming
+- [x] 4.8 Form hidden + hint shown when the campaign has a single NPC
+- [x] 4.9 Two-click delete removes the relationship from the list and DB
+- [x] 4.10 Deleting one NPC cascade-deletes its relationships
+- [x] 4.11 User B cannot see/delete User A's relationships or link to User A's NPCs
