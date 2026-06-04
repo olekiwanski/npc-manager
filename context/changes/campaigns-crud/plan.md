@@ -346,29 +346,29 @@ For production, run `npx wrangler secret put` for Supabase credentials (already 
 
 #### Automated
 
-- [x] 1.1 Migration file exists at correct path
-- [x] 1.2 `npx supabase db reset` completes without error
+- [x] 1.1 Migration file exists at correct path — d7fc269
+- [x] 1.2 `npx supabase db reset` completes without error — d7fc269
 
 #### Manual
 
-- [x] 1.3 Campaigns table visible in Supabase Studio with all columns and constraints
-- [x] 1.4 RLS enabled; all four policies present with correct definitions
-- [x] 1.5 Cross-account isolation verified in Studio
+- [x] 1.3 Campaigns table visible in Supabase Studio with all columns and constraints — d7fc269
+- [x] 1.4 RLS enabled; all four policies present with correct definitions — d7fc269
+- [x] 1.5 Cross-account isolation verified in Studio — d7fc269
 
 ### Phase 2: Types & API Routes
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes on all new files
-- [ ] 2.2 TypeScript compilation emits no errors on new files
+- [x] 2.1 `npm run lint` passes on all new files
+- [x] 2.2 TypeScript compilation emits no errors on new files
 
 #### Manual
 
-- [ ] 2.3 GET /api/campaigns returns `{ data: [] }` for a new user
-- [ ] 2.4 POST /api/campaigns creates a campaign and returns 201
-- [ ] 2.5 PATCH /api/campaigns/<id> updates and returns the campaign
-- [ ] 2.6 DELETE /api/campaigns/<id> removes the row
-- [ ] 2.7 Unauthenticated requests return 401
+- [x] 2.3 GET /api/campaigns returns `{ data: [] }` for a new user
+- [x] 2.4 POST /api/campaigns creates a campaign and returns 201
+- [x] 2.5 PATCH /api/campaigns/<id> updates and returns the campaign
+- [x] 2.6 DELETE /api/campaigns/<id> removes the row
+- [x] 2.7 Unauthenticated requests return 401
 
 ### Phase 3: React Components
 
