@@ -19,8 +19,13 @@ const bodySchema = z.object({
 });
 
 export const POST: APIRoute = async (context) => {
+  if (!ANTHROPIC_API_KEY) {
+    return json(503, { error: "AI service unavailable" });
+  }
+
   const user = context.locals.user;
-  if (!user) {
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!user || !supabase) {
     return json(401, { error: "Unauthorized" });
   }
 
@@ -41,11 +46,6 @@ export const POST: APIRoute = async (context) => {
     return json(400, { error: "Missing npc id" });
   }
 
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return json(500, { error: "Database unavailable" });
-  }
-
   const npcResult = await supabase.from("npcs").select().eq("id", npcId).eq("user_id", user.id).maybeSingle();
   if (npcResult.error) {
     return json(500, { error: npcResult.error.message });
@@ -55,21 +55,19 @@ export const POST: APIRoute = async (context) => {
   }
   const npc = npcResult.data as Npc;
 
-  const relResult = await supabase.from("npc_has_npc").select().or(`from_npc_id.eq.${npcId},to_npc_id.eq.${npcId}`);
-  if (relResult.error) {
-    return json(500, { error: "Failed to load NPC context" });
-  }
-
-  const rosterResult = await supabase.from("npcs").select().eq("campaign_id", npc.campaign_id);
-  if (rosterResult.error) {
+  const [relResult, rosterResult] = await Promise.all([
+    supabase
+      .from("npc_has_npc")
+      .select()
+      .eq("campaign_id", npc.campaign_id)
+      .or(`from_npc_id.eq.${npcId},to_npc_id.eq.${npcId}`),
+    supabase.from("npcs").select().eq("campaign_id", npc.campaign_id).eq("user_id", user.id),
+  ]);
+  if (relResult.error || rosterResult.error) {
     return json(500, { error: "Failed to load NPC context" });
   }
 
   const systemPrompt = buildNpcSystemPrompt(npc, relResult.data as Relationship[], rosterResult.data as Npc[]);
-
-  if (!ANTHROPIC_API_KEY) {
-    return json(503, { error: "AI service unavailable" });
-  }
 
   const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
   const { scenario } = parsed.data;
@@ -94,8 +92,12 @@ export const POST: APIRoute = async (context) => {
 
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
       } catch {
-        const frame = `data: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`;
-        controller.enqueue(encoder.encode(frame));
+        try {
+          const frame = `data: ${JSON.stringify({ error: "Stream interrupted" })}\n\n`;
+          controller.enqueue(encoder.encode(frame));
+        } catch {
+          // client already disconnected — enqueue would throw; close handles cleanup
+        }
       } finally {
         controller.close();
       }
@@ -107,6 +109,7 @@ export const POST: APIRoute = async (context) => {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 };

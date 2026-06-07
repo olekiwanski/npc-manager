@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ServerError } from "@/components/auth/ServerError";
+import { cn } from "@/lib/utils";
 
 interface NpcReactionProps {
   npcId: string;
@@ -50,7 +51,7 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
-      for (;;) {
+      outer: for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -58,12 +59,12 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
         for (const line of chunk.split("\n")) {
           if (!line.startsWith("data: ")) continue;
           const raw = line.slice(6).trim();
-          if (raw === "[DONE]") break;
+          if (raw === "[DONE]") break outer;
           try {
             const parsed = JSON.parse(raw) as { text?: string; error?: string };
             if (parsed.error) {
               setError(parsed.error);
-              break;
+              break outer;
             }
             if (parsed.text !== undefined) {
               const text = parsed.text;
@@ -79,7 +80,9 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
         setError("Network error. Please try again.");
       }
     } finally {
-      setIsStreaming(false);
+      if (!controller.signal.aborted) {
+        setIsStreaming(false);
+      }
     }
   };
 
@@ -96,7 +99,10 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
             maxLength={500}
             rows={3}
             placeholder="Describe a scenario for this NPC to react to…"
-            className="w-full resize-none rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none disabled:opacity-50"
+            className={cn(
+              "w-full resize-none rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white",
+              "placeholder:text-white/40 focus:border-white/40 focus:outline-none disabled:opacity-50",
+            )}
           />
           <p className="mt-1 text-right text-xs text-white/40">{scenario.length}/500</p>
         </div>
