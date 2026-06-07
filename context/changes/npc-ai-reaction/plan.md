@@ -358,26 +358,26 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Automated
 
-- [x] 4.1 TypeScript: no errors in `NpcReaction.tsx`
-- [x] 4.2 `npm run lint` passes
+- [x] 4.1 TypeScript: no errors in `NpcReaction.tsx` — e47f4de
+- [x] 4.2 `npm run lint` passes — e47f4de
 
 #### Manual
 
-- [x] 4.3 Spinner appears immediately on submit (< 1s visual feedback)
-- [x] 4.4 Response text appears incrementally (typewriter effect)
-- [x] 4.5 Empty/whitespace scenario keeps button disabled
-- [x] 4.6 Mid-stream failure: partial text stays, error message appears
+- [x] 4.3 Spinner appears immediately on submit (< 1s visual feedback) — e47f4de
+- [x] 4.4 Response text appears incrementally (typewriter effect) — e47f4de
+- [x] 4.5 Empty/whitespace scenario keeps button disabled — e47f4de
+- [x] 4.6 Mid-stream failure: partial text stays, error message appears — e47f4de
 
 ### Phase 5: Page Integration
 
 #### Automated
 
-- [ ] 5.1 `npm run build` passes with no type errors
-- [ ] 5.2 `npm run lint` passes
+- [x] 5.1 `npm run build` passes with no type errors
+- [x] 5.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 5.3 NPC detail page shows the "AI Reaction" section below relationships
-- [ ] 5.4 Full happy path: scenario → streamed in-character response referencing NPC traits and a named relationship
-- [ ] 5.5 NPC with null traits and no relationships renders without crash
-- [ ] 5.6 No regression in existing RelationshipSection functionality
+- [x] 5.3 NPC detail page shows the "AI Reaction" section below relationships
+- [x] 5.4 Full happy path: scenario → streamed in-character response referencing NPC traits and a named relationship
+- [x] 5.5 NPC with null traits and no relationships renders without crash
+- [x] 5.6 No regression in existing RelationshipSection functionality

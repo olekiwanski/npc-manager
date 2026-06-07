@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
 import { RelationshipSection } from "@/components/relationships/RelationshipSection";
+import { NpcReaction } from "@/components/npcs/NpcReaction";
 import type { Npc, Relationship } from "@/types";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -96,6 +97,11 @@ const relationships = relationshipsResult.data as Relationship[];
           initialRelationships={relationships}
           client:load
         />
+      </section>
+
+      <section class="mt-6 rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+        <h2 class="mb-4 text-sm font-semibold tracking-wide text-blue-100/60 uppercase">AI Reaction</h2>
+        <NpcReaction npcId={npcId} client:load />
       </section>
     </div>
   </div>
