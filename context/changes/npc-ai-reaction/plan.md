@@ -332,27 +332,27 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Automated
 
-- [x] 2.1 `npm run test` passes with all 8 unit test cases green
-- [x] 2.2 TypeScript: no errors in `src/lib/npc-reaction.ts`
+- [x] 2.1 `npm run test` passes with all 8 unit test cases green — acfb7e9
+- [x] 2.2 TypeScript: no errors in `src/lib/npc-reaction.ts` — acfb7e9
 
 #### Manual
 
-- [x] 2.3 Inspect one generated prompt for a real NPC to confirm prose reads naturally
+- [x] 2.3 Inspect one generated prompt for a real NPC to confirm prose reads naturally — acfb7e9
 
 ### Phase 3: API Route
 
 #### Automated
 
-- [ ] 3.1 TypeScript: no errors in the route file
-- [ ] 3.2 `npm run lint` passes
-- [ ] 3.3 `npm run build` passes
+- [x] 3.1 TypeScript: no errors in the route file
+- [x] 3.2 `npm run lint` passes
+- [x] 3.3 `npm run build` passes
 
 #### Manual
 
-- [ ] 3.4 `POST /api/npcs/{valid-id}/reaction` returns 200 with `text/event-stream` and SSE frames visible in DevTools
-- [ ] 3.5 Request without auth cookie → 401 JSON
-- [ ] 3.6 Request with empty or >500-char scenario → 400 JSON
-- [ ] 3.7 Request with another user's NPC id → 404 JSON
+- [x] 3.4 `POST /api/npcs/{valid-id}/reaction` returns 200 with `text/event-stream` and SSE frames visible in DevTools
+- [x] 3.5 Request without auth cookie → 401 JSON
+- [x] 3.6 Request with empty or >500-char scenario → 400 JSON
+- [x] 3.7 Request with another user's NPC id → 404 JSON
 
 ### Phase 4: React Streaming Component
 
