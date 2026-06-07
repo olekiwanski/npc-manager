@@ -1,75 +1,76 @@
-# NPC AI Reaction — Plan Brief
+# NPC AI Reaction (S-04) — Plan Brief
 
 > Full plan: `context/changes/npc-ai-reaction/plan.md`
 > Research: `context/changes/npc-ai-reaction/research.md`
+> SDK reference: `context/changes/npc-ai-reaction/anthropic-ai-sdk.md`
 
 ## What & Why
 
-Build S-04 — the roadmap north star. A GM opens an NPC detail page, submits a natural-language scenario, and receives a **streamed** in-character AI response within 2 seconds (FR-010 / US-01). The response draws on the NPC's role, traits, and all known relationships. No state is mutated; re-query is always available.
+S-04 is the north star feature of NPC Manager: a GM types a natural-language scenario for a specific NPC and receives a streamed, in-character AI response grounded in that NPC's traits and named relationships. This is the slice that validates the core product bet — that AI reactions anchored in a GM's own structured NPC data are genuinely useful, unlike what any generic note tool can offer.
 
 ## Starting Point
 
-All prerequisite data (S-01–S-03) is in place: `npcs` and `npc_has_npc` tables with RLS, the S-03 relationship fetch pattern, and a consistent API/island convention to mirror. No AI SDK is installed and no streaming exists anywhere in the codebase — both the AI client layer and the SSE plumbing are greenfield.
+The full CRUD stack (campaigns, NPCs, relationships) is done and merged. The Cloudflare Workers environment already has `nodejs_compat` and `output: "server"`, making it streaming-ready. `@anthropic-ai/sdk` is not yet installed and `ANTHROPIC_API_KEY` is not registered in the env schema.
 
 ## Desired End State
 
-A third "Ask AI" section card appears below the Relationships card on every NPC detail page. The GM types a scenario, submits, sees a spinner immediately, and watches the in-character response stream in. Re-submitting replaces the previous response. When no AI key is configured the section renders as disabled with a config hint and the existing Layout banner fires automatically.
+On the NPC detail page, below the existing relationships section, a GM sees a scenario textarea and an "Ask" button. After submitting, a spinner appears within 2 seconds, followed by streamed text that references the NPC by name, role, traits, and known relationship partners. On stream failure the partial text stays visible with an error message below it.
 
 ## Key Decisions Made
 
 | Decision | Choice | Why (1 sentence) | Source |
 |---|---|---|---|
-| Wire format | SSE frames (`text/event-stream`) | Both backends normalized via `TransformStream` to custom `{text,done}` frames; single client reader | Plan |
-| AI backends | Both Anthropic + Ollama | Locally testable without API keys; matches shape-notes design constraint | Research / Plan |
-| Prompt structure | System prompt = NPC identity; user message = scenario | Clean separation; system prompt eligible for Anthropic caching | Plan |
-| Relationship context | All relationships, no cap | PRD: relationships enrich not gate; NPCs won't have hundreds in practice | Research / Plan |
-| Stream errors | Partial response + inline error | User sees recovered context; re-query is immediately available | Plan |
-| Re-query | Replace on re-submit | Clean state, matches single-active-question mental model | Plan |
-| UI placement | Always-visible section below Relationships | Immediately discoverable; matches two-section layout pattern | Plan |
-| Testing | Unit-test `buildSystemPrompt`; exclude AI clients from coverage | Prompt builder is a pure function, clients make external calls | Plan |
-| Unconfigured state | Disabled section + config hint | Feature visible so GM knows to configure; config banner is free | Plan |
+| Env var access pattern | `astro:env/server` import | All existing secrets use this pattern — `locals.runtime.env` is untyped in this project | Research |
+| System prompt content | Full profile + named relationships | Relationship grounding is the differentiator; omitting it produces a generic response | Plan |
+| Partner depth in prompt | Name + type + description | One extra roster query; sufficient for in-character depth without recursive fetch risk | Plan |
+| Streaming display | Typewriter (append chunks live) | Satisfies the 2-second visible feedback NFR; established pattern in AI-native UIs | Plan |
+| Scenario input limit | 500 chars, required | Keeps prompts focused and token cost predictable for a "scenario query" use case | Plan |
+| Mid-stream error UX | Show error, keep partial text | Partial text is valuable; erasing it on failure is more frustrating than an incomplete response | Plan |
+| Testing coverage | Unit test prompt builder only | The prompt builder has the most nullable-field edge cases; streaming route relies on manual testing | Plan |
+| Prompt builder location | `src/lib/npc-reaction.ts` (pure function) | Extractable, testable in isolation, consistent with existing `src/lib/` service pattern | Plan |
 
 ## Scope
 
 **In scope:**
-- `src/lib/ai/` — `interface.ts`, `anthropic.ts`, `ollama.ts`, `index.ts`, `prompt.ts`
-- `POST /api/npcs/[id]/reaction` — streaming endpoint with full auth + ownership guard
-- `ReactionSection.tsx` — React island with streaming reader
-- `astro.config.mjs`, `config-status.ts`, `vitest.config.ts` — integration touch-points
-- Unit tests for `buildSystemPrompt`
+- Install `@anthropic-ai/sdk` and configure `ANTHROPIC_API_KEY` in env schema
+- `buildNpcSystemPrompt()` pure function with unit tests (8 cases)
+- `POST /api/npcs/[id]/reaction` SSE streaming endpoint
+- `NpcReaction` React island (scenario form + typewriter display)
+- Embed island in `src/pages/campaigns/[id]/npcs/[npcId]/index.astro`
 
 **Out of scope:**
-- Response persistence (no new DB tables)
-- Multi-turn conversation history
-- Relationship count cap or filtering
-- Anthropic prompt-cache headers (follow-up optimization)
-- Ollama model configuration UI
+- No DB migration (no new tables)
+- No rate limiting
+- No conversation history (single-turn only)
+- No markdown rendering of responses
+- No saving reactions to DB
+- No model selector UI
 
 ## Architecture / Approach
 
-Both AI backends normalize to a single SSE wire format (`data: {"text":"…","done":false}\n\n` / `data: {"done":true}\n\n`) via `TransformStream` inside each client. The endpoint calls `aiClient.react()` and returns the streaming `Response` directly — no buffering at the API layer. The React island consumes it with `fetch` + `getReader()`, buffering bytes across `\n\n` frame boundaries before parsing. `aiEnabled` is derived server-side from env vars and passed as a prop; the island renders a disabled state when false.
+Astro SSR API route builds the system prompt server-side from three Supabase queries (NPC, relationships, campaign roster), then opens a `client.messages.stream()` call with Claude. Text deltas are forwarded as SSE frames via a Web `ReadableStream` response. The React island (`client:load`) reads the stream with a `ReadableStream` reader, appending each `text` delta to component state for a typewriter effect. The system prompt builder is a pure function extracted to `src/lib/` so it can be unit tested independently.
 
 ## Phases at a Glance
 
 | Phase | What it delivers | Key risk |
 |---|---|---|
-| 1. AI Client Foundation | env vars, factory, AnthropicClient, OllamaClient, config-status wiring | TransformStream + Workers streaming pattern is net-new |
-| 2. Prompt Builder + Tests | Pure `buildSystemPrompt()` function + unit tests | Prompt quality only validated manually at this stage |
-| 3. Streaming API Endpoint | `POST /api/npcs/[id]/reaction` — full auth, context assembly, streaming | SSE frame buffering gotcha on server side |
-| 4. React Island + Integration | `ReactionSection.tsx` + NPC detail page wired up | SSE frame buffering gotcha on client side; spinner timing |
+| 1. Prerequisites & env config | SDK installed, `ANTHROPIC_API_KEY` in env schema | Needs a real API key in `.dev.vars` to verify manually |
+| 2. System prompt builder + tests | Tested pure function handling all nullable NPC fields | Nullable field logic silently produces bad prompts if untested |
+| 3. API route | Authenticated SSE streaming endpoint | First live integration with Anthropic API — rate limits or key issues surface here |
+| 4. React streaming component | Typewriter display with error resilience | SSE chunk parsing fragility across network conditions |
+| 5. Page integration | Full feature live on NPC detail page | Visual regression in existing page layout |
 
-**Prerequisites:** Supabase running locally (S-01–S-03 data), and either `ANTHROPIC_API_KEY` or `OLLAMA_BASE_URL` set in `.dev.vars` for end-to-end testing.
-**Estimated effort:** ~3–4 sessions across 4 phases.
+**Prerequisites:** Real `ANTHROPIC_API_KEY` must be in `.dev.vars` before Phase 1 manual check. All prior slices (S-01–S-03) are done and merged.  
+**Estimated effort:** ~2–3 focused sessions across 5 phases.
 
 ## Open Risks & Assumptions
 
-- Ollama is dev-only (localhost unreachable from deployed Cloudflare Workers) — `AnthropicClient` is the only prod path.
-- `ANTHROPIC_API_KEY` must exist as a Cloudflare Workers Secret before deploying — owner: user, non-blocking for planning.
-- Anthropic `claude-haiku-4-5-20251001` TTFT is assumed < 2 s for typical NPC context sizes — not validated under load.
-- Prompt quality (in-character fidelity) is a manual judgment call; no automated quality gate.
+- Anthropic API key must be obtained and added to `.dev.vars` and Cloudflare secrets before deployment — this is on the user, not the implementation.
+- `[id].ts` + `[id]/reaction.ts` file coexistence in Astro routing is assumed safe (different filesystem entries); confirmed by Astro's file-based routing design.
+- `zod` is assumed installed (used in all existing API routes per AGENTS.md).
 
 ## Success Criteria (Summary)
 
-- GM submits a scenario and sees streamed in-character text within 2 seconds (FR-010 / US-01)
-- Unconfigured state surfaces a clear, actionable config hint without breaking the page
-- No regressions in any existing NPC, campaign, or relationship flow
+- A GM submits a scenario for an NPC with traits and relationships and receives a streamed response that names at least one relationship partner in context.
+- Visible feedback (spinner or first text chunk) appears within 2 seconds of submit on a local dev connection.
+- All automated checks (build, lint, 8 unit tests) pass with no errors.

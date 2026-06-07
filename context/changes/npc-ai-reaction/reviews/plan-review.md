@@ -1,11 +1,11 @@
 <!-- PLAN-REVIEW-REPORT -->
-# Plan Review: NPC AI Reaction Implementation Plan
+# Plan Review: NPC AI Reaction (S-04) Implementation Plan
 
 - **Plan**: `context/changes/npc-ai-reaction/plan.md`
 - **Mode**: Deep
-- **Date**: 2026-06-04
-- **Verdict**: REVISE → SOUND (after fixes)
-- **Findings**: 0 critical | 2 warnings | 3 observations
+- **Date**: 2026-06-07
+- **Verdict**: SOUND (after fixes applied)
+- **Findings**: 1 critical | 2 warnings | 2 observations
 
 ## Verdicts
 
@@ -13,62 +13,64 @@
 |---|---|
 | End-State Alignment | PASS |
 | Lean Execution | PASS |
-| Architectural Fitness | PASS |
-| Blind Spots | WARNING |
-| Plan Completeness | WARNING |
+| Architectural Fitness | WARNING |
+| Blind Spots | FAIL → PASS (after fixes) |
+| Plan Completeness | WARNING → PASS (after fixes) |
 
 ## Grounding
 
-8/8 paths ✓ (5 existing verified, 3 new dirs correctly absent), 3/3 symbols ✓ (missingConfigs auto-iteration, @/lib/ island import pattern, astro:env/server exclusion convention), brief↔plan ⚠️ (F3 — resolved)
+9/9 paths ✓, createClient symbol ✓, ServerError props ✓ (`message?: string | null`), brief↔plan ✓
 
 ## Findings
 
-### F1 — react() HTTP status contract is implicit
+### F1 — `zod` not installed; Phase 3 validation won't compile
+
+- **Severity**: ❌ CRITICAL
+- **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
+- **Dimension**: Blind Spots
+- **Location**: Phase 1 (missing install) + Phase 3 validation contract
+- **Detail**: `package.json` has no `zod` entry. Phase 3 contract uses `z.string().min(1).max(500)`. AGENTS.md mandates zod validation. Importing zod would fail to compile.
+- **Fix A ⭐ Recommended**: Add `npm install zod` to Phase 1 alongside `@anthropic-ai/sdk`. Aligns with AGENTS.md, single-line fix.
+- **Fix B**: Replace with inline type guard in Phase 3. No dependency, diverges from AGENTS.md convention.
+- **Decision**: FIXED via Fix A — Phase 1 install step updated to `npm install @anthropic-ai/sdk zod`
+
+### F2 — `ANTHROPIC_API_KEY` without `optional: true` breaks CI
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Plan Completeness
+- **Location**: Phase 1 — `astro.config.mjs` env schema change
+- **Detail**: All existing env vars use `optional: true` so CI builds without secrets. The plan added `ANTHROPIC_API_KEY` without it — CI `lint + build` would fail on every PR.
+- **Fix**: Add `optional: true` to the envField declaration. Route uses non-null assertion `!` consistent with Supabase vars.
+- **Decision**: FIXED — Phase 1 contract updated to `optional: true` with usage note
+
+### F3 — SSE chunk boundary fragility in React reader
 
 - **Severity**: ⚠️ WARNING
 - **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
 - **Dimension**: Blind Spots
-- **Location**: Phase 1 — interface.ts contract; Phase 4 — island error handling
-- **Detail**: The island branches on `!res.ok` (non-200 → JSON error body; 200 → SSE stream). Phase 1.4 said AnthropicClient returns "a one-shot error frame response" for upstream failures without specifying HTTP 200. An implementer setting status 500 makes the island call `await res.json()` on an SSE body, producing a silent SyntaxError.
-- **Fix**: Added explicit HTTP 200 invariant to the `AiClientInterface.react()` contract in Phase 1.3.
-- **Decision**: FIXED
+- **Location**: Phase 4 — React streaming component contract
+- **Detail**: `chunk.split('\n')` approach can silently drop data if TCP splits a `data:` line across two `reader.read()` calls. Not acknowledged in the plan.
+- **Fix A ⭐ Recommended**: Document as explicit MVP tradeoff — one sentence in Phase 4 contract.
+- **Fix B**: Add a proper line buffer to the reader (~10 lines, correct for all conditions).
+- **Decision**: FIXED via Fix A — tradeoff note added to Phase 4 contract
 
-### F2 — Context assembly Supabase errors have no specified handling
+### F4 — First nested dynamic route in this codebase
 
-- **Severity**: ⚠️ WARNING
+- **Severity**: 💡 OBSERVATION
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Architectural Fitness
+- **Location**: Phase 3 — route file path
+- **Detail**: All 9 existing API routes use flat `[id].ts`. `[id]/reaction.ts` is the first nested dynamic route. Astro supports this by design but it's untested in this codebase.
+- **Fix**: Add routing smoke-test note to Phase 3 manual verification — stub route + curl before building full logic.
+- **Decision**: FIXED — smoke test note added to Phase 3 manual verification
+
+### F5 — No stream cleanup on navigation/unmount
+
+- **Severity**: 💡 OBSERVATION
 - **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
 - **Dimension**: Blind Spots
-- **Location**: Phase 3 — reaction.ts context assembly
-- **Detail**: Relationship fetch and partner-name fetch had no error handling. Supabase errors would silently produce an NPC with no relationships or crash on null destructuring.
-- **Fix A ⭐ Applied**: Degrade gracefully — treat query errors as empty collections + `console.warn`. Consistent with PRD "enrich not gate."
-- **Decision**: FIXED via Fix A
-
-### F3 — Brief contradicts plan on Anthropic normalization
-
-- **Severity**: 💡 OBSERVATION
-- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
-- **Dimension**: Plan Completeness
-- **Location**: plan-brief.md — Key Decisions table, "Wire format" row
-- **Detail**: Brief said "Anthropic upstream is already SSE; Ollama normalized via TransformStream." Plan correctly specifies both backends use TransformStream.
-- **Fix**: Updated brief "Wire format" Why cell to: "Both backends normalized via TransformStream to custom {text,done} frames; single client reader."
-- **Decision**: FIXED
-
-### F4 — [id].ts + [id]/ nesting unverified; no routing regression check
-
-- **Severity**: 💡 OBSERVATION
-- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
-- **Dimension**: Plan Completeness
-- **Location**: Phase 3 — manual verification
-- **Detail**: `src/pages/api/npcs/[id]/reaction.ts` coexists with `[id].ts` — no codebase precedent. PATCH/DELETE on existing route could silently break.
-- **Fix**: Added routing regression bullet to Phase 3 manual verification (3.6) and Progress section.
-- **Decision**: FIXED
-
-### F5 — Hardcoded "llama3" model not mentioned in manual criteria
-
-- **Severity**: 💡 OBSERVATION
-- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
-- **Dimension**: Plan Completeness
-- **Location**: Phase 1 — manual verification 1.6
-- **Detail**: Developer needs `ollama pull llama3` to test the OllamaClient path; plan didn't mention this.
-- **Fix**: Added `ollama pull llama3` note to Phase 1 manual criterion 1.6.
-- **Decision**: FIXED
+- **Location**: Phase 4 — NpcReaction component
+- **Detail**: No `AbortController` — fetch continues in background if user navigates away mid-stream (API cost, Worker connection held). Not explicitly excluded from scope.
+- **Fix**: Add `AbortController` + `useEffect` cleanup to Phase 4 contract.
+- **Decision**: FIXED — AbortController + useEffect cleanup added to Phase 4 contract

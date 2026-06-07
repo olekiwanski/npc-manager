@@ -1,445 +1,277 @@
-# NPC AI Reaction Implementation Plan
+# NPC AI Reaction (S-04) Implementation Plan
 
 ## Overview
 
-Build S-04 — the roadmap north star. A GM opens an NPC detail page, types a natural-language scenario ("How would Thorin react to a betrayal?"), and receives a **streamed** in-character AI response within 2 seconds. The response is grounded in the NPC's role, traits, and all known relationships. No state is mutated — re-query is always available, and each new submission replaces the previous response.
-
-Both AI backends are implemented: `AnthropicClient` (prod, via `ANTHROPIC_API_KEY`) and `OllamaClient` (dev-only, via `OLLAMA_BASE_URL`). When neither key is configured the section renders as disabled with a config prompt.
+Implement the north star feature: a GM types a natural-language scenario on the NPC detail page and receives a streamed, in-character AI response grounded in that NPC's profile, traits, and known relationships. Visible feedback appears within 2 seconds of submission.
 
 ## Current State Analysis
 
-- Data is fully ready: `npcs` (name/role/traits) and `npc_has_npc` (directed relationships with type + description) exist with RLS. The `S-03` fetch pattern (`.or(from_npc_id.eq.X, to_npc_id.eq.X)`) is the template for context assembly.
-- No AI SDK is installed — `package.json` has no `@anthropic-ai/sdk`, `openai`, or similar. `zod` is transitive only; it needs to be made explicit.
-- Streaming is the single net-new element: no `ReadableStream`, SSE, or `getReader()` anywhere in `src/` today — both server and client ends are greenfield.
-- The `astro:env` schema (`astro.config.mjs:17-22`) and the `configStatuses` array (`src/lib/config-status.ts`) are the two integration points for new env vars.
-- The NPC detail page (`src/pages/campaigns/[id]/npcs/[npcId]/index.astro`) mounts React islands with `client:load`; a third section card goes after the relationships section (after line 90).
-
-### Key Discoveries
-
-- `src/lib/supabase.ts:5-24` — factory template: named export, reads `astro:env/server`, returns `null` when unconfigured. The AI client factory must mirror this exactly.
-- `src/pages/api/npcs/index.ts:8-70` — canonical route shape: `prerender = false`, local `json()` helper, zod `safeParse`, auth + RLS ownership re-check, `{ data }` / `{ error }` response.
-- `vitest.config.ts:11` — `src/lib/supabase.ts` and `src/lib/config-status.ts` are excluded from coverage because they import `astro:env`. All new `src/lib/ai/*.ts` files that import `astro:env` or make external network calls must be added to the same exclusion list.
-- `eslint.config.js:72` — `@typescript-eslint/no-misused-promises` is already disabled for `**/*.astro`; no change needed when the detail page gains env-var imports.
-- Anthropic streams SSE (`event: content_block_delta` / `delta.text`); Ollama streams NDJSON (`message.content`, `done: true`). Both must be normalized to the same client-facing format via `TransformStream`.
+- `src/pages/campaigns/[id]/npcs/[npcId]/index.astro` — NPC detail page; already has a `RelationshipSection` React island (`client:load`). S-04 adds a second island below it.
+- `src/pages/api/npcs/[id].ts` — existing PATCH/DELETE route; the new reaction endpoint lives at `src/pages/api/npcs/[id]/reaction.ts` (different path, no conflict).
+- `src/lib/supabase.ts` — `createClient(headers, cookies)` pattern used by all existing routes.
+- `src/types.ts:28-68` — `Npc` and `Relationship` types; `role` and `traits` are `string | null`.
+- Relationship query: `.or(\`from_npc_id.eq.${npcId},to_npc_id.eq.${npcId}\`)` captures both edge directions.
+- `astro.config.mjs:11,16` — `output: "server"`, Cloudflare adapter; `wrangler.jsonc:6` has `nodejs_compat`.
+- `@anthropic-ai/sdk` is not yet installed; `ANTHROPIC_API_KEY` not in env schema.
+- All env vars use `astro:env/server` imports — **not** `locals.runtime.env`.
 
 ## Desired End State
 
-A GM viewing any NPC detail page sees a third section card — "Ask AI" — below the relationships card. They type a scenario, submit, and a spinner appears immediately. Within 2 seconds the streamed in-character response begins rendering. On re-submit the previous response is replaced. If the AI backend is absent the section renders disabled with a link-free config hint. If the stream errors mid-way the partial response is preserved and an inline error message appears below it.
+A GM on the NPC detail page sees a new "AI Reaction" section below relationships. They type a scenario (up to 500 chars), click "Ask", and within 2 seconds the first streamed text chunks appear in a response area. The response references the NPC's role, traits, and named relationships. If the stream fails mid-way, the partial text stays visible and an error message appears below it.
 
-### Key Discoveries (continued):
+### Key Discoveries
 
-- Context assembly: fetch NPC → fetch relationships → fetch partner names via `.in("id", partnerIds)` (not the full roster) → `buildSystemPrompt()`.
-- System prompt carries NPC identity + relationship list; scenario text is the user message. This enables Anthropic prompt caching on the system prompt.
-- Normalized wire format: `data: {"text":"…","done":false}\n\n` and `data: {"done":true}\n\n` — both backends produce this via `TransformStream`. The React island parses this single format.
+- `role` and `traits` on `npcs` are both nullable — prompt builder must omit sections gracefully.
+- Relationship partner names live on the `npcs` table, not on `npc_has_npc` — resolving names requires a second query for the campaign roster.
+- Directed relationship edges use `from_npc_id` and `to_npc_id`; the "other" NPC is whichever id ≠ current NPC's id.
+- React island embedding pattern: Astro page fetches data server-side, passes as props; React handles all interactivity (`client:load`). NpcReaction needs only `npcId` as a prop — it fetches its data client-side via the API route.
+- Only one shadcn component exists (`button.tsx`); all other UI is custom Tailwind.
+- `ServerError` lives at `src/components/auth/ServerError.tsx` — reuse for error display.
+- Zod is used for request body validation in all existing API routes.
 
 ## What We're NOT Doing
 
-- No response persistence — reactions are ephemeral per session; no new DB table.
-- No conversation history / multi-turn — each submission is a single-turn query.
-- No relationship cap — all NPC relationships are included in context (PRD US-01 AC: relationships enrich, not gate).
-- No shadcn textarea component — the textarea stays inline with `cn()`, matching the existing `NpcForm` pattern.
-- No EventSource / SSE browser API — POST endpoint requires `fetch` + `getReader()`.
-- No Ollama model configuration UI — hardcode `llama3`; Anthropic uses `claude-haiku-4-5-20251001`.
+- No new database tables or migrations.
+- No rate limiting or per-user request throttling.
+- No conversation history — single-turn only (scenario in, reaction out).
+- No markdown rendering of the AI response — plain whitespace-preserved text.
+- No caching of reactions.
+- No model selector UI — `claude-sonnet-4-6` is hardcoded.
+- No streaming token counter or progress bar beyond the existing spinner.
+- No saving reactions to the database.
 
 ## Implementation Approach
 
-Four phases, each independently verifiable:
-
-1. Lay the AI client foundation (env, factory, both backends, config-status).
-2. Build and test the pure prompt-builder function.
-3. Wire the streaming API endpoint.
-4. Build the React island and integrate it into the NPC detail page.
+Five sequential phases, each independently verifiable. Phases 1–2 set up prerequisites with no user-visible change; Phase 3 completes the backend; Phases 4–5 wire up the UI. The system prompt builder is extracted into a pure function (`src/lib/npc-reaction.ts`) so it can be unit tested in isolation before the route depends on it.
 
 ## Critical Implementation Details
 
-**SSE frame buffering — applies to Phase 1 (server) and Phase 4 (client)**: `reader.read()` returns arbitrary byte chunks that do not align to SSE frame boundaries. Both the `TransformStream` implementations in the AI clients and the island's stream-reader loop must buffer, split on `"\n\n"`, keep the trailing incomplete fragment, and only parse complete messages. The naive pattern of decoding each chunk directly will silently drop or mis-parse frames on slow connections.
+**Route file coexistence**: `src/pages/api/npcs/[id].ts` (a file) and `src/pages/api/npcs/[id]/reaction.ts` (inside a directory) differ at the filesystem level — one is a `.ts` file, the other is a directory entry. Astro's file router handles these as distinct routes with no conflict.
 
-**Async streaming in Workers**: use a `TransformStream`, return its `.readable` side immediately as the `Response` body, and drive the pipe in a self-contained async IIFE. Workers CPU time is charged only for active JS execution — idle `await reader.read()` waits are free. Do not `await` the whole pipe before returning the response.
-
-**Do not set `Content-Length`**: set `Cache-Control: no-cache` on streaming responses but never `Content-Length`. Workers applies chunked transfer encoding automatically.
+**Mid-stream error forwarding**: The `ReadableStream.start()` callback wraps the `for await` loop in a `try/catch`. On Anthropic SDK error (network, rate limit, upstream 5xx), it enqueues a `data: {"error":"..."}` SSE frame and then closes the controller. The React client parses this frame, sets error state, and stops reading — partial text already in `reactionText` state is preserved.
 
 ---
 
-## Phase 1: AI Client Foundation
+## Phase 1: Prerequisites & Env Config
 
 ### Overview
 
-Register the two new env vars in the `astro:env` schema, install zod as an explicit dependency, implement the `AiClientInterface` + both clients + factory, plug the AI config check into the existing banner system, and update dev-environment files.
+Install the Anthropic SDK and register `ANTHROPIC_API_KEY` in Astro's env schema so all subsequent phases can import it. No user-visible change.
 
 ### Changes Required
 
-#### 1. Environment schema
+#### 1. Install `@anthropic-ai/sdk` and `zod`
+
+**File**: `package.json` (via shell)
+
+**Intent**: Add the Anthropic TypeScript SDK and Zod validation library as runtime dependencies. Zod is mandated by AGENTS.md for all API route request validation and is not yet in `package.json`.
+
+**Contract**: Run `npm install @anthropic-ai/sdk zod`. Verify both appear under `dependencies` in `package.json`.
+
+#### 2. Add `ANTHROPIC_API_KEY` to env schema
 
 **File**: `astro.config.mjs`
 
-**Intent**: Register `ANTHROPIC_API_KEY` and `OLLAMA_BASE_URL` so they're available via `astro:env/server` and auto-typed without touching `src/env.d.ts`.
+**Intent**: Register the secret so `astro:env/server` exposes it at runtime, matching the project convention for all server-side secrets.
 
-**Contract**: Add two entries inside the `env.schema` block, after the existing Supabase fields:
-```js
+**Contract**: Inside the `env.schema` object alongside `SUPABASE_URL` and `SUPABASE_KEY`, add:
+```
 ANTHROPIC_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-OLLAMA_BASE_URL:   envField.string({ context: "server", access: "public", optional: true }),
 ```
-Neither has a `default` — the graceful-null factory depends on both being `undefined` when unset.
+Use `optional: true` to match the project convention — without it, the CI build fails on every PR (CI runs `lint + build` without this secret). In the API route, access via `ANTHROPIC_API_KEY!` (non-null assertion) consistent with how Supabase vars are used, or guard explicitly with a 503 if undefined.
 
----
+#### 3. Update `.env.example`
 
-#### 2. Explicit zod dependency
+**File**: `.env.example`
 
-**File**: `package.json`
+**Intent**: Document the new required variable so future contributors know to set it.
 
-**Intent**: `zod` is currently transitive. Phase 3 imports it directly in the API route, making it an explicit dependency.
-
-**Contract**: Run `npm install zod`. Adds `"zod": "^x.y.z"` to `dependencies`.
-
----
-
-#### 3. AI client interface
-
-**File**: `src/lib/ai/interface.ts` *(new)*
-
-**Intent**: Define the shared contract that both AI clients implement and the normalized SSE chunk type consumed by the React island.
-
-**Contract**: Export `AiClientInterface` with a single method `react(systemPrompt: string, scenario: string): Promise<Response>`. The returned `Response` has `Content-Type: text/event-stream` and streams frames in this format:
-- text chunk: `data: {"text":"…","done":false}\n\n`
-- completion: `data: {"done":true}\n\n`
-- error: `data: {"error":"…","done":true}\n\n`
-
-**The method always returns HTTP 200**, even when the upstream AI fails before streaming begins. Errors are delivered in-band as SSE error frames — never as a non-2xx HTTP status. This invariant is required by the island, which branches on `!res.ok` to distinguish a pre-auth/routing failure (JSON body) from any AI-layer outcome (SSE body).
-
-Also export `StreamChunk` as `{ text: string; done: boolean } | { error: string; done: true }` for use in the island.
-
----
-
-#### 4. Anthropic client
-
-**File**: `src/lib/ai/anthropic.ts` *(new)*
-
-**Intent**: Implement `AiClientInterface` by calling the Anthropic Messages API via raw `fetch` and transforming the upstream SSE stream to the normalized format.
-
-**Contract**: `AnthropicClient` takes `apiKey: string` in the constructor. `react()` calls `POST https://api.anthropic.com/v1/messages` with `stream: true`, model `claude-haiku-4-5-20251001`, `max_tokens: 1024`, the `systemPrompt` as the `system` field, and `scenario` as a single `user` message. Returns a `Response` whose body is the output of a `TransformStream` that:
-1. Buffers incoming bytes with a `\n\n` split (see Critical Implementation Details).
-2. On `event: content_block_delta` with `delta.type === "text_delta"`: emits `data: {"text":"…","done":false}\n\n`.
-3. On `event: message_stop`: emits `data: {"done":true}\n\n` and closes the writer.
-4. On any exception: emits `data: {"error":"…","done":true}\n\n` and closes.
-
-If `upstream.ok` is false before streaming begins, return a one-shot error frame response without starting the transform.
-
----
-
-#### 5. Ollama client
-
-**File**: `src/lib/ai/ollama.ts` *(new)*
-
-**Intent**: Implement `AiClientInterface` by calling the Ollama `/api/chat` endpoint and transforming NDJSON chunks to the normalized SSE format. Dev-only — localhost unreachable from deployed Workers.
-
-**Contract**: `OllamaClient` takes `baseUrl: string`. `react()` calls `POST {baseUrl}/api/chat` with `stream: true`, model `llama3`, and `messages: [{role:"system",…},{role:"user",…}]`. Returns a `Response` using the same `TransformStream` pattern as `AnthropicClient`, splitting on `"\n"` (NDJSON lines), parsing each line as JSON, and emitting:
-- On `done === false` and `message.content` present: text chunk frame.
-- On `done === true`: completion frame; close the writer.
-- On exception: error frame; close.
-
----
-
-#### 6. AI client factory
-
-**File**: `src/lib/ai/index.ts` *(new)*
-
-**Intent**: Read env vars at request time and return the highest-priority configured client, or `null` when neither key is present.
-
-**Contract**: `export function createAiClient(): AiClientInterface | null`. Imports `ANTHROPIC_API_KEY` and `OLLAMA_BASE_URL` from `astro:env/server`. Priority: if `ANTHROPIC_API_KEY` is set → `new AnthropicClient(ANTHROPIC_API_KEY)`; else if `OLLAMA_BASE_URL` is set → `new OllamaClient(OLLAMA_BASE_URL)`; else `null`. Callers that receive `null` return 503.
-
----
-
-#### 7. Config-status integration
-
-**File**: `src/lib/config-status.ts`
-
-**Intent**: Add an AI entry so `Layout.astro` automatically surfaces a banner when neither key is configured — zero UI changes required.
-
-**Contract**: Import `ANTHROPIC_API_KEY` and `OLLAMA_BASE_URL` from `astro:env/server`. Append to `configStatuses`:
-```ts
-{
-  name: "AI",
-  configured: Boolean(ANTHROPIC_API_KEY || OLLAMA_BASE_URL),
-  message: "AI nie jest skonfigurowane — dodaj ANTHROPIC_API_KEY lub OLLAMA_BASE_URL, aby włączyć reakcje NPC.",
-}
-```
-
----
-
-#### 8. Dev environment files
-
-**Files**: `.env.example`, `.dev.vars`
-
-**Intent**: Document the two new keys for local developers.
-
-**Contract**: Append two commented lines to both files:
-```
-# ANTHROPIC_API_KEY=sk-ant-...
-# OLLAMA_BASE_URL=http://127.0.0.1:11434
-```
-
----
-
-#### 9. Vitest coverage exclusions
-
-**File**: `vitest.config.ts`
-
-**Intent**: Exclude the three AI client files that import `astro:env` or make external network calls from coverage, following the same convention as `supabase.ts` and `config-status.ts`.
-
-**Contract**: Add `"src/lib/ai/index.ts"`, `"src/lib/ai/anthropic.ts"`, and `"src/lib/ai/ollama.ts"` to the `coverage.exclude` array. `src/lib/ai/interface.ts` and `src/lib/ai/prompt.ts` remain in coverage.
-
----
+**Contract**: Add `ANTHROPIC_API_KEY=###` below the existing Supabase entries.
 
 ### Success Criteria
 
 #### Automated Verification
 
-- `npm run build` succeeds with the two new env vars declared but absent (all `optional: true`)
-- `npm run lint` passes — no new type errors from the AI module files
-- `npm run test` passes (no tests yet for Phase 1, but existing tests must not regress)
+- `npm run build` passes with no type errors related to `ANTHROPIC_API_KEY`
+- `npm run lint` passes
 
 #### Manual Verification
 
-- With no env vars set: `createAiClient()` returns `null`; Layout.astro shows the "AI nie jest skonfigurowane" banner
-- With `ANTHROPIC_API_KEY=test` in `.dev.vars`: `createAiClient()` returns an `AnthropicClient` instance; banner is absent
-- With `OLLAMA_BASE_URL=http://localhost:11434` in `.dev.vars` and no `ANTHROPIC_API_KEY`: returns `OllamaClient` (ensure `ollama pull llama3` has been run locally first, or update the model constant in `ollama.ts` to match an available model)
+- Local dev server (`npm run dev`) starts without errors after adding `ANTHROPIC_API_KEY=<real-key>` to `.dev.vars`
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation before proceeding to Phase 2.
 
 ---
 
-## Phase 2: Prompt Builder + Unit Tests
+## Phase 2: System Prompt Builder + Unit Tests
 
 ### Overview
 
-Build the pure function that assembles the system prompt from an NPC's profile and resolved relationships. Unit-test all edge cases (no traits, no role, no relationships, relationship with no description).
+Extract the NPC-to-system-prompt logic into a pure function that can be unit tested before the API route depends on it. This is the highest-value logic in S-04 and the one most likely to misbehave silently on nullable fields.
 
 ### Changes Required
 
-#### 1. Prompt builder function
+#### 1. Create `src/lib/npc-reaction.ts`
 
-**File**: `src/lib/ai/prompt.ts` *(new)*
+**File**: `src/lib/npc-reaction.ts`
 
-**Intent**: Pure function — takes a fully resolved NPC + relationship list and returns the system-prompt string ready to pass to any AI client.
+**Intent**: Export a pure function `buildNpcSystemPrompt` that assembles a Claude system prompt from an NPC's profile and its resolved relationship context. Must handle all nullable fields without crashing or producing malformed output.
 
 **Contract**:
 
-```ts
-interface PromptRelationship {
-  partnerName: string;
-  type: string;
-  description: string | null;
-}
-export function buildSystemPrompt(npc: Npc, relationships: PromptRelationship[]): string
+```typescript
+export function buildNpcSystemPrompt(
+  npc: Npc,
+  relationships: Relationship[],
+  roster: Npc[]
+): string
 ```
 
-Output template (render each section only when data is present; fall back to "No known [x]." otherwise):
+Prompt structure (each section is conditionally included):
 
-```
-You are playing [name], [role | "a character without a defined role"].
+1. **Identity line** (always): `You are {name}` + `, a {role}` if `role` is not null.
+2. **Traits paragraph** (only if `traits` is not null): `\nPersonality and traits: {traits}`
+3. **Relationships block** (only if `relationships.length > 0`): `\nYour known relationships:` followed by one line per relationship:
+   - Resolve the partner's id: `rel.from_npc_id !== npc.id ? rel.from_npc_id : rel.to_npc_id`
+   - Resolve the partner's name from `roster`; use `"an unknown NPC"` as fallback if not found
+   - Line format: `- {partnerName} ({rel.type})` + `: {rel.description}` if description is not null
+4. **Closing instruction** (always): `\nStay in character as {name}. Respond to the scenario as this character would, referencing your background and relationships where relevant.`
 
-[name]'s traits:
-[traits | "No known traits."]
+#### 2. Create `src/lib/npc-reaction.test.ts`
 
-[name]'s known relationships:
-- [partnerName] ([type]): [description | "No description."]
-…
-(or "No known relationships." when the array is empty)
+**File**: `src/lib/npc-reaction.test.ts`
 
-Stay fully in character as [name]. Respond to the scenario in [name]'s voice, drawing on their traits and relationships. Do not break character.
-```
+**Intent**: Unit test all nullable-field branches and relationship resolution paths so regressions surface in CI before they reach the AI layer.
 
----
-
-#### 2. Unit tests
-
-**File**: `src/lib/ai/prompt.test.ts` *(new)*
-
-**Intent**: Test `buildSystemPrompt` across all NPC profile and relationship edge cases.
-
-**Contract**: Cover at minimum:
-- Full profile (name, role, traits) + two relationships (one with description, one without)
-- NPC with `role: null`
-- NPC with `traits: null`
-- Empty relationships array
-- Relationships present but all with `description: null`
-
----
+**Contract**: Vitest test file co-located with source. Cover:
+- NPC with all fields populated → prompt includes identity, traits, and relationships block
+- NPC with `role: null` → identity line has no role segment
+- NPC with `traits: null` → no traits paragraph
+- NPC with empty `relationships` array → no relationships block
+- Relationship with `description: null` → line shows only `(type)`, no colon segment
+- Partner NPC id present in roster → correct name used
+- Partner NPC id absent from roster → `"an unknown NPC"` fallback used
+- Relationship where current NPC is `to_npc_id` (incoming edge) → partner resolved from `from_npc_id`
 
 ### Success Criteria
 
 #### Automated Verification
 
-- `npm run test` passes — all `prompt.test.ts` cases green
-- `npm run lint` passes
+- `npm run test` passes with all 8 unit test cases green
+- TypeScript: no errors in `src/lib/npc-reaction.ts`
 
 #### Manual Verification
 
-- Inspect the generated system prompt for a representative NPC with traits and relationships — confirm it reads naturally and includes all context sections
+- Inspect one generated prompt for a real NPC (via `console.log` in a test run) to confirm the prose reads naturally
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation before proceeding to Phase 3.
 
 ---
 
-## Phase 3: Streaming API Endpoint
+## Phase 3: API Route
 
 ### Overview
 
-Add `POST /api/npcs/[id]/reaction` following the established route convention. The endpoint validates the scenario, assembles NPC context, builds the system prompt, and forwards a streaming AI response.
+New SSE endpoint `POST /api/npcs/:id/reaction` that authenticates the request, fetches NPC context, builds the system prompt, calls Claude with streaming, and forwards text deltas as SSE frames. Errors before streaming begin return JSON; errors during streaming are forwarded as SSE error frames.
 
 ### Changes Required
 
-#### 1. Reaction endpoint
+#### 1. Create `src/pages/api/npcs/[id]/reaction.ts`
 
-**File**: `src/pages/api/npcs/[id]/reaction.ts` *(new)*
+**File**: `src/pages/api/npcs/[id]/reaction.ts`
 
-**Intent**: Validate the scenario, confirm NPC ownership, assemble context, and stream the AI response — no mutations, auth and RLS defense in depth.
+**Intent**: Implement the streaming reaction endpoint following the project's API route conventions (prerender false, uppercase export, Zod validation, auth via `locals.user`, raw `new Response()`).
 
-**Contract**:
-
-- `export const prerender = false`
-- Local `json()` helper (same shape as other routes)
-- `reactionQuerySchema = z.object({ scenario: z.string().min(1, "Scenario is required").max(2000, "Scenario must be 2000 characters or fewer") })`
-- Auth guard: `createClient(headers, cookies)` + `locals.user` → 401 if either null
-- NPC ownership re-check: `.from("npcs").select("*").eq("id", params.id).maybeSingle()` (RLS-scoped) → 404 if no row
-- Body parse: `try/catch request.json()` → 400 on invalid JSON; `reactionQuerySchema.safeParse()` → 400 on validation failure
-- Context assembly (errors degrade gracefully — relationships enrich, not gate):
-  1. Fetch relationships: `.from("npc_has_npc").select("*").or(from_npc_id.eq.{npcId},to_npc_id.eq.{npcId})`. If `relResult.error`, log `console.warn` and treat as empty array (proceed to step 4 with no relationships).
-  2. Collect unique partner IDs (from both endpoints). If `partnerIds.length > 0`: `.from("npcs").select("id, name").in("id", partnerIds)`; else use empty array. If the partner-name fetch errors, log `console.warn` and treat as empty array (partner names will be omitted from the prompt).
-  3. Build `PromptRelationship[]` by resolving `partnerName` from the fetched roster.
-  4. Call `buildSystemPrompt(npc, promptRelationships)`
-- AI client: `createAiClient()` → `null` → `json(503, { error: "AI not configured" })`
-- Return: `return aiClient.react(systemPrompt, scenario.data.scenario)` — the streaming `Response` is returned directly; do not buffer or transform it further.
-
-The endpoint does not set `Content-Type` or `Cache-Control` itself — those come from `aiClient.react()`.
-
----
+**Contract**: `export const prerender = false` + `export const POST: APIRoute`. Request body schema: `{ scenario: string }` validated with Zod (`.min(1).max(500)`). Auth guard: check `locals.user`; return 401 if absent. NPC ownership: query `npcs` with both `.eq("id", npcId)` and `.eq("user_id", user.id)`; return 404 if not found. Fetch relationships via `.or(...)` and campaign roster via `.eq("campaign_id", npc.campaign_id)`. Build system prompt via `buildNpcSystemPrompt`. Pass prompt to `client.messages.stream()` with `model: "claude-sonnet-4-6"` and `max_tokens: 1024`. Wrap the `for await` loop in a `try/catch` inside `ReadableStream.start()` — on error, enqueue `data: {"error":"Stream interrupted"}` then close. Return `new Response(readable, { headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" } })`.
 
 ### Success Criteria
 
 #### Automated Verification
 
-- `npm run lint` passes on the new file
-- `npm run build` succeeds
+- TypeScript: no errors in the route file
+- `npm run lint` passes
+- `npm run build` passes
 
 #### Manual Verification
 
-- `POST /api/npcs/[id]/reaction` with a valid scenario and valid NPC id → SSE stream of normalized frames arrives; last frame has `done: true`
-- Missing/expired session → 401
-- Invalid or foreign NPC id → 404
-- `createAiClient()` returns null (keys absent) → 503 JSON error
-- `scenario` empty or over 2000 chars → 400 JSON error
-- Partial stream (kill connection mid-way server-side) → client receives partial text + error frame or clean close
-- Confirm `PATCH /api/npcs/:id` and `DELETE /api/npcs/:id` from the existing `[id].ts` still respond correctly — no routing regression from the `[id].ts` + `[id]/` file+directory coexistence
+- **Routing smoke test first** (this is the first nested dynamic route in the codebase): create the file with just a stub `POST` returning `200 OK`, hit it with `curl -X POST http://localhost:4321/api/npcs/any-id/reaction` before building full logic — confirm routing resolves correctly
+- `POST /api/npcs/{valid-id}/reaction` with `{ "scenario": "..." }` → returns 200 with `Content-Type: text/event-stream` and SSE data frames visible in DevTools Network tab
+- Request without auth cookie → returns 401 JSON
+- Request with `scenario: ""` or `scenario` longer than 500 chars → returns 400 JSON
+- Request with a NPC id belonging to another user → returns 404 JSON
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation before proceeding to Phase 4.
 
 ---
 
-## Phase 4: React Island + Page Integration
+## Phase 4: React Streaming Component
 
 ### Overview
 
-Build `ReactionSection.tsx` — the streaming-aware React island — and mount it on the NPC detail page. Handle the disabled state (no AI config), in-progress streaming (spinner + accumulating text), errors (partial response preserved + inline error), and re-query (replace on submit).
+New React island `NpcReaction` with a scenario textarea, submit button, and a streaming text display area. Follows the project's event-driven fetch pattern (no `useEffect` for data fetching), the existing spinner style, and `ServerError` for error display.
 
 ### Changes Required
 
-#### 1. ReactionSection island
+#### 1. Create `src/components/npcs/NpcReaction.tsx`
 
-**File**: `src/components/npcs/ReactionSection.tsx` *(new)*
+**File**: `src/components/npcs/NpcReaction.tsx`
 
-**Intent**: Self-contained React island for the "Ask AI" scenario form. Accepts an `aiEnabled` flag so the page can disable the feature without conditional rendering.
+**Intent**: Render a scenario form and display the streamed AI response incrementally as text deltas arrive. Keep partial text visible on stream failure and show an error message below it.
 
-**Contract**:
-
-Props:
-```ts
-interface ReactionSectionProps {
-  npcId: string;
-  campaignId: string;
-  aiEnabled: boolean;
-}
-```
-
-State: `scenario: string`, `streaming: boolean`, `response: string`, `error: string | null`.
-
-When `aiEnabled === false`: render the section content but the textarea and button are `disabled`; show a short inline message ("AI nie jest skonfigurowane").
-
-When `aiEnabled === true`, `handleSubmit`:
-1. Set `streaming=true`, `response=""`, `error=null`.
-2. `fetch(\`/api/npcs/${npcId}/reaction\`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ scenario }) })`.
-3. If `!res.ok`: read `{ error }` from JSON body, set `error`, `streaming=false`, return.
-4. Stream read loop — **must buffer for SSE frame boundaries**:
-
-```ts
-let buffer = "";
-const reader = res.body!.getReader();
-const decoder = new TextDecoder();
-outer: for (;;) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  buffer += decoder.decode(value, { stream: true });
-  const messages = buffer.split("\n\n");
-  buffer = messages.pop() ?? "";
-  for (const msg of messages) {
-    const dataLine = msg.split("\n").find(l => l.startsWith("data: "));
-    if (!dataLine) continue;
-    const payload = JSON.parse(dataLine.slice(6)) as StreamChunk;
-    if ("error" in payload) { setError(payload.error); break outer; }
-    if (payload.done)        { break outer; }
-    setResponse(prev => prev + payload.text);
-  }
-}
-setStreaming(false);
-```
-
-5. Catch block: set `error` from the caught Error, `streaming=false`.
-
-Response area: `<pre>` with `whitespace-pre-wrap` and the frosted-glass text color. Submit button: inline spinner using the same `size-4 animate-spin rounded-full border-2 border-white/30 border-t-white` pattern from `SubmitButton.tsx`.
-
-Textarea: inline `<textarea className={cn(...)}>`, no shadcn component. Placeholder: "How would [NPC name] react to…". Disabled during `streaming`.
-
-Error display: red inline text below the response area (always shown when `error` is non-null, even when `response` is also non-empty).
-
----
-
-#### 2. NPC detail page wiring
-
-**File**: `src/pages/campaigns/[id]/npcs/[npcId]/index.astro`
-
-**Intent**: Derive `aiEnabled` from the server-side env check and mount the `ReactionSection` island as a third section card.
-
-**Contract**:
-- Add `import { ANTHROPIC_API_KEY, OLLAMA_BASE_URL } from "astro:env/server"` to the frontmatter imports.
-- Derive `const aiEnabled = Boolean(ANTHROPIC_API_KEY || OLLAMA_BASE_URL)` in frontmatter.
-- Import `ReactionSection` from `@/components/npcs/ReactionSection`.
-- After the closing `</section>` of the relationships card (line 90), add:
-```astro
-<section class="mt-6 rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-  <h2 class="mb-4 text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Ask AI</h2>
-  <ReactionSection npcId={npcId} campaignId={id} aiEnabled={aiEnabled} client:load />
-</section>
-```
-
----
+**Contract**: Props: `{ npcId: string }`. State: `scenario` (controlled input), `reactionText` (appended with each `text` SSE frame), `isStreaming` (boolean), `error` (string | null). Ref: `abortRef` (`useRef<AbortController | null>(null)`) — created fresh on each submit, stored in the ref. Add `useEffect(() => () => abortRef.current?.abort(), [])` for cleanup on unmount (this is the one legitimate `useEffect` in this component — not for data fetching, but for cleanup, consistent with click-outside patterns in `CampaignCard`, `NpcCard`, `RelationshipRow`). Pass `{ signal: abortRef.current.signal }` to `fetch`. Submit handler is a plain `onSubmit` (not React 19 form action — use `e.preventDefault()` + `async function`) because `useFormStatus` does not integrate with streaming responses. While `isStreaming`, disable both the textarea and the button. Button shows the project spinner (`size-4 animate-spin rounded-full border-2 border-white/30 border-t-white`) with text "Generating…" when streaming, "Ask" otherwise. The SSE reader loop: `fetch` → check `res.ok` (non-ok → read JSON error, set error state, return) → `res.body.getReader()` → `while(true)` read chunks → decode → split on `"\n"` → parse `data:` lines → append `parsed.text` to `reactionText` via state setter; on `parsed.error` set error state and break; skip `[DONE]`. On catch, set error "Network error. Please try again." Always set `isStreaming(false)` in `finally`. **Note (MVP tradeoff)**: uses simple `chunk.split('\n')` SSE parsing with no line buffer — works reliably for Cloudflare Workers' typical frame-complete flush behavior; upgrade to a buffered parser if field testing reveals dropped chunks. Render the `reactionText` in a `div` with `whitespace-pre-wrap` — only shown when `reactionText` is non-empty. Render `<ServerError message={error} />` below the response area. Textarea `maxLength={500}` with a character counter `{scenario.length}/500`.
 
 ### Success Criteria
 
 #### Automated Verification
 
-- `npm run lint` passes (no React Compiler rule violations, no unused vars)
-- `npm run build` succeeds
+- TypeScript: no errors in `NpcReaction.tsx`
+- `npm run lint` passes
 
 #### Manual Verification
 
-- Navigate to any NPC detail page → "Ask AI" section is visible below Relationships
-- With AI configured: type a scenario → spinner appears immediately (< 2 s) → text streams in character → spinner disappears on completion
-- Re-submit a second scenario → previous response replaced, new stream starts
-- Mid-stream error (e.g. kill Ollama mid-response): partial text visible + red error message below it
-- With no AI keys configured: textarea and button are disabled; config hint is visible; Layout banner also shown
-- No regressions on the NPC edit, campaign, or relationship flows
+- Submitting a valid scenario shows the spinner immediately (visually < 1s)
+- Response text appears incrementally as the stream arrives (typewriter effect)
+- Submitting an empty or whitespace-only scenario: the button remains disabled
+- While streaming: textarea and button are both disabled
+- After stream completes: button re-enables, textarea re-enables
+- Simulated mid-stream failure (devtools → throttle network to offline after first chunks): partial text stays, error message appears below it
+- Character counter increments correctly; textarea cannot exceed 500 chars
 
-**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation that the full end-to-end feature is working before considering this change done.
+**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation before proceeding to Phase 5.
+
+---
+
+## Phase 5: Page Integration
+
+### Overview
+
+Embed the `NpcReaction` island in the NPC detail page as a new section below `RelationshipSection`. Astro passes `npcId` as a prop; the component handles everything else client-side.
+
+### Changes Required
+
+#### 1. Update `src/pages/campaigns/[id]/npcs/[npcId]/index.astro`
+
+**File**: `src/pages/campaigns/[id]/npcs/[npcId]/index.astro`
+
+**Intent**: Add the AI Reaction section to the NPC detail page, following the same island embedding pattern as `RelationshipSection`.
+
+**Contract**: Import `NpcReaction` from `@/components/npcs/NpcReaction`. After the `RelationshipSection` section block (around line 98), add a new `<section>` with the same visual style (`rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl`) containing a heading "AI Reaction" and `<NpcReaction npcId={npcId} client:load />`.
+
+### Success Criteria
+
+#### Automated Verification
+
+- `npm run build` passes with no type errors
+- `npm run lint` passes
+
+#### Manual Verification
+
+- NPC detail page renders the new "AI Reaction" section below relationships
+- Full happy path: type a scenario → submit → spinner appears in < 2s → streamed response appears referencing the NPC's name, role/traits, and at least one relationship (for an NPC that has relationships)
+- Page renders correctly for an NPC with no traits and no relationships (empty fields handled gracefully — no crash, no empty labels)
+- No regression on existing NPC detail functionality (relationships still work)
+
+**Implementation Note**: After completing this phase and all automated verification passes, this is the final confirmation — S-04 is done.
 
 ---
 
@@ -447,100 +279,105 @@ Error display: red inline text below the response area (always shown when `error
 
 ### Unit Tests
 
-- `src/lib/ai/prompt.test.ts` — `buildSystemPrompt` with full profile, null role, null traits, empty relationships, relationships with no description.
+- `src/lib/npc-reaction.test.ts` — 8 cases covering all nullable-field branches and relationship direction/resolution paths (see Phase 2)
 
 ### Integration Tests
 
-None — the AI reaction is end-to-end verified manually (streaming endpoint + live AI backend).
+- None automated — the streaming endpoint and React component are covered by manual verification in Phases 3–5.
 
 ### Manual Testing Steps
 
-1. Start dev server with `OLLAMA_BASE_URL=http://127.0.0.1:11434` (and Ollama running) or `ANTHROPIC_API_KEY=sk-ant-…`
-2. Sign in → open any campaign → open an NPC with traits and at least one relationship
-3. Submit a scenario → verify spinner appears < 2s → verify streamed in-character text
-4. Submit a second scenario → verify first response is replaced
-5. Simulate error: set an invalid API key → submit → verify error message appears (with no partial response, since the failure is pre-stream)
-6. Kill AI backend mid-stream → verify partial response is preserved + error shown
-7. Remove both keys → verify "Ask AI" section is disabled + config banner appears
+1. Add `ANTHROPIC_API_KEY=<real-key>` to `.dev.vars` and start `npm run dev`
+2. Sign in and navigate to an NPC that has: name, role, traits, and at least 2 relationships
+3. Submit a scenario that relates to a known relationship (e.g., "The party asks Gareth about his old friend Marcus")
+4. Confirm: spinner appears immediately, text streams in, response references Marcus or the relationship type
+5. Test with an NPC that has `null` role and `null` traits — confirm no crash, response is still in-character
+6. Test with an NPC with no relationships — confirm relationships section is absent from the response context without errors
+7. Throttle DevTools network to "Slow 3G", submit — confirm spinner appears within 2s even on slow connection
+8. Disconnect network mid-stream — confirm partial text preserved, error message visible
 
 ## Performance Considerations
 
-- Anthropic `claude-haiku-4-5-20251001` is selected for latency (sub-second TTFT on typical requests). Model constant lives in `anthropic.ts` and can be changed without touching the interface.
-- System prompt caching: the system prompt (NPC identity + relationships) is eligible for Anthropic's prompt cache. Not implemented in this plan — can be added by passing `cache_control` headers to the Anthropic API in a follow-up.
-- Workers CPU time: LLM network await is free; the `TransformStream` processing is minimal. No performance concern at this scale.
-
-## Migration Notes
-
-No DB migrations required — this feature adds no new tables or columns.
+- Two extra Supabase queries per request (relationships + campaign roster). Both are single-table SELECTs with indexed foreign keys — negligible latency.
+- `max_tokens: 1024` caps Claude's output at a reasonable length. Adjust if responses feel truncated.
+- The `NodeJS.compat` flag is already set — no additional Cloudflare config needed for streaming.
 
 ## References
 
 - Research: `context/changes/npc-ai-reaction/research.md`
-- Supabase client factory template: `src/lib/supabase.ts:5-24`
-- Config-status pattern: `src/lib/config-status.ts:1-21`
-- Route convention: `src/pages/api/npcs/index.ts:8-70`
-- Island mount pattern: `src/pages/campaigns/[id]/npcs/[npcId]/index.astro:83-90`
-- Spinner pattern: `src/components/auth/SubmitButton.tsx:21-24`
-- PRD: `context/foundation/prd.md` — FR-010, US-01
-- Infrastructure: `context/foundation/infrastructure.md:63,71,93` — Workers CPU accounting
+- SDK reference: `context/changes/npc-ai-reaction/anthropic-ai-sdk.md`
+- Existing React island pattern: `src/pages/campaigns/[id]/npcs/[npcId]/index.astro:92-98`
+- Closest existing API route: `src/pages/api/npcs/[id].ts`
+- Supabase client factory: `src/lib/supabase.ts`
+- Existing types: `src/types.ts:28-68`
 
 ---
 
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
+> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
 
-### Phase 1: AI Client Foundation
-
-#### Automated
-
-- [ ] 1.1 `npm run build` succeeds with new optional env vars declared
-- [ ] 1.2 `npm run lint` passes with no errors from AI module files
-- [ ] 1.3 `npm run test` passes (existing tests unaffected)
-
-#### Manual
-
-- [ ] 1.4 `createAiClient()` returns null when both keys absent; Layout banner appears
-- [ ] 1.5 `createAiClient()` returns `AnthropicClient` when `ANTHROPIC_API_KEY` is set; banner absent
-- [ ] 1.6 `createAiClient()` returns `OllamaClient` when only `OLLAMA_BASE_URL` is set
-
-### Phase 2: Prompt Builder + Unit Tests
+### Phase 1: Prerequisites & Env Config
 
 #### Automated
 
-- [ ] 2.1 `npm run test` passes — all `prompt.test.ts` cases green
-- [ ] 2.2 `npm run lint` passes
+- [x] 1.1 `npm run build` passes with no type errors related to `ANTHROPIC_API_KEY`
+- [x] 1.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.3 Generated system prompt for a representative NPC reads naturally and includes all context sections
+- [ ] 1.3 Local dev server starts without errors after adding `ANTHROPIC_API_KEY` to `.dev.vars`
 
-### Phase 3: Streaming API Endpoint
+### Phase 2: System Prompt Builder + Unit Tests
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes on `reaction.ts`
-- [ ] 3.2 `npm run build` succeeds
+- [ ] 2.1 `npm run test` passes with all 8 unit test cases green
+- [ ] 2.2 TypeScript: no errors in `src/lib/npc-reaction.ts`
 
 #### Manual
 
-- [ ] 3.3 Valid POST request streams normalized SSE frames; last frame has `done: true`
-- [ ] 3.4 Missing session → 401; invalid NPC id → 404; no AI keys → 503; empty scenario → 400
-- [ ] 3.5 Partial stream on connection close handled gracefully
-- [ ] 3.6 PATCH and DELETE /api/npcs/:id routing regression check passes
+- [ ] 2.3 Inspect one generated prompt for a real NPC to confirm prose reads naturally
 
-### Phase 4: React Island + Page Integration
+### Phase 3: API Route
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` passes (no React Compiler violations)
-- [ ] 4.2 `npm run build` succeeds
+- [ ] 3.1 TypeScript: no errors in the route file
+- [ ] 3.2 `npm run lint` passes
+- [ ] 3.3 `npm run build` passes
 
 #### Manual
 
-- [ ] 4.3 "Ask AI" section visible on NPC detail page below Relationships
-- [ ] 4.4 Scenario submitted → spinner < 2s → text streams in character → stops cleanly
-- [ ] 4.5 Re-submit replaces previous response
-- [ ] 4.6 Mid-stream error: partial text preserved + red error message
-- [ ] 4.7 Unconfigured state: section disabled + config hint + Layout banner
-- [ ] 4.8 No regressions in NPC edit, campaign, or relationship flows
+- [ ] 3.4 `POST /api/npcs/{valid-id}/reaction` returns 200 with `text/event-stream` and SSE frames visible in DevTools
+- [ ] 3.5 Request without auth cookie → 401 JSON
+- [ ] 3.6 Request with empty or >500-char scenario → 400 JSON
+- [ ] 3.7 Request with another user's NPC id → 404 JSON
+
+### Phase 4: React Streaming Component
+
+#### Automated
+
+- [ ] 4.1 TypeScript: no errors in `NpcReaction.tsx`
+- [ ] 4.2 `npm run lint` passes
+
+#### Manual
+
+- [ ] 4.3 Spinner appears immediately on submit (< 1s visual feedback)
+- [ ] 4.4 Response text appears incrementally (typewriter effect)
+- [ ] 4.5 Empty/whitespace scenario keeps button disabled
+- [ ] 4.6 Mid-stream failure: partial text stays, error message appears
+
+### Phase 5: Page Integration
+
+#### Automated
+
+- [ ] 5.1 `npm run build` passes with no type errors
+- [ ] 5.2 `npm run lint` passes
+
+#### Manual
+
+- [ ] 5.3 NPC detail page shows the "AI Reaction" section below relationships
+- [ ] 5.4 Full happy path: scenario → streamed in-character response referencing NPC traits and a named relationship
+- [ ] 5.5 NPC with null traits and no relationships renders without crash
+- [ ] 5.6 No regression in existing RelationshipSection functionality
