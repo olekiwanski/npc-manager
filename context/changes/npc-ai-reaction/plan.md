@@ -321,23 +321,23 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Automated
 
-- [x] 1.1 `npm run build` passes with no type errors related to `ANTHROPIC_API_KEY`
-- [x] 1.2 `npm run lint` passes
+- [x] 1.1 `npm run build` passes with no type errors related to `ANTHROPIC_API_KEY` — 96f722c
+- [x] 1.2 `npm run lint` passes — 96f722c
 
 #### Manual
 
-- [ ] 1.3 Local dev server starts without errors after adding `ANTHROPIC_API_KEY` to `.dev.vars`
+- [x] 1.3 Local dev server starts without errors after adding `ANTHROPIC_API_KEY` to `.dev.vars`
 
 ### Phase 2: System Prompt Builder + Unit Tests
 
 #### Automated
 
-- [ ] 2.1 `npm run test` passes with all 8 unit test cases green
-- [ ] 2.2 TypeScript: no errors in `src/lib/npc-reaction.ts`
+- [x] 2.1 `npm run test` passes with all 8 unit test cases green
+- [x] 2.2 TypeScript: no errors in `src/lib/npc-reaction.ts`
 
 #### Manual
 
-- [ ] 2.3 Inspect one generated prompt for a real NPC to confirm prose reads naturally
+- [x] 2.3 Inspect one generated prompt for a real NPC to confirm prose reads naturally
 
 ### Phase 3: API Route
 
