@@ -372,12 +372,12 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Automated
 
-- [x] 5.1 `npm run build` passes with no type errors
-- [x] 5.2 `npm run lint` passes
+- [x] 5.1 `npm run build` passes with no type errors — 3abbbf7
+- [x] 5.2 `npm run lint` passes — 3abbbf7
 
 #### Manual
 
-- [x] 5.3 NPC detail page shows the "AI Reaction" section below relationships
-- [x] 5.4 Full happy path: scenario → streamed in-character response referencing NPC traits and a named relationship
-- [x] 5.5 NPC with null traits and no relationships renders without crash
-- [x] 5.6 No regression in existing RelationshipSection functionality
+- [x] 5.3 NPC detail page shows the "AI Reaction" section below relationships — 3abbbf7
+- [x] 5.4 Full happy path: scenario → streamed in-character response referencing NPC traits and a named relationship — 3abbbf7
+- [x] 5.5 NPC with null traits and no relationships renders without crash — 3abbbf7
+- [x] 5.6 No regression in existing RelationshipSection functionality — 3abbbf7
