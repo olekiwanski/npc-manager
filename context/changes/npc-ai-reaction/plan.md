@@ -343,30 +343,30 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Automated
 
-- [x] 3.1 TypeScript: no errors in the route file
-- [x] 3.2 `npm run lint` passes
-- [x] 3.3 `npm run build` passes
+- [x] 3.1 TypeScript: no errors in the route file — fcbb144
+- [x] 3.2 `npm run lint` passes — fcbb144
+- [x] 3.3 `npm run build` passes — fcbb144
 
 #### Manual
 
-- [x] 3.4 `POST /api/npcs/{valid-id}/reaction` returns 200 with `text/event-stream` and SSE frames visible in DevTools
-- [x] 3.5 Request without auth cookie → 401 JSON
-- [x] 3.6 Request with empty or >500-char scenario → 400 JSON
-- [x] 3.7 Request with another user's NPC id → 404 JSON
+- [x] 3.4 `POST /api/npcs/{valid-id}/reaction` returns 200 with `text/event-stream` and SSE frames visible in DevTools — fcbb144
+- [x] 3.5 Request without auth cookie → 401 JSON — fcbb144
+- [x] 3.6 Request with empty or >500-char scenario → 400 JSON — fcbb144
+- [x] 3.7 Request with another user's NPC id → 404 JSON — fcbb144
 
 ### Phase 4: React Streaming Component
 
 #### Automated
 
-- [ ] 4.1 TypeScript: no errors in `NpcReaction.tsx`
-- [ ] 4.2 `npm run lint` passes
+- [x] 4.1 TypeScript: no errors in `NpcReaction.tsx`
+- [x] 4.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 4.3 Spinner appears immediately on submit (< 1s visual feedback)
-- [ ] 4.4 Response text appears incrementally (typewriter effect)
-- [ ] 4.5 Empty/whitespace scenario keeps button disabled
-- [ ] 4.6 Mid-stream failure: partial text stays, error message appears
+- [x] 4.3 Spinner appears immediately on submit (< 1s visual feedback)
+- [x] 4.4 Response text appears incrementally (typewriter effect)
+- [x] 4.5 Empty/whitespace scenario keeps button disabled
+- [x] 4.6 Mid-stream failure: partial text stays, error message appears
 
 ### Phase 5: Page Integration
 
