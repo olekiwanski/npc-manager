@@ -48,6 +48,8 @@ beforeEach(() => {
 });
 
 describe("scenario validation", () => {
+  // Zod validation fires before the ownership query (reaction.ts:39 vs :49),
+  // so the Supabase mock is inert here — maybeSingle is never called.
   it("returns 400 when scenario is empty string", async () => {
     const response = await POST(
       makeContext({ user: { id: "user-1" }, body: { scenario: "" } }) as unknown as Parameters<typeof POST>[0],
@@ -87,6 +89,7 @@ describe("auth and ownership", () => {
     const body = (await response.json()) as { error: string };
     expect(response.status).toBe(404);
     expect(body.error).toBe("Not found");
+    expect(mock._chain.eq).toHaveBeenCalledWith("id", "npc-owned-by-b");
     expect(mock._chain.eq).toHaveBeenCalledWith("user_id", "user-a");
   });
 });
