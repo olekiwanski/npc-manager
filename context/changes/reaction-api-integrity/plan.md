@@ -223,21 +223,21 @@ One test: call `POST` with a fully valid context (`user: { id: "user-1" }`, vali
 
 #### Automated
 
-- [x] 1.1 `npm run test` — all 5 tests in `reaction.test.ts` pass
-- [x] 1.2 `npm run lint` passes
+- [x] 1.1 `npm run test` — all 5 tests in `reaction.test.ts` pass — d3cec1d
+- [x] 1.2 `npm run lint` passes — d3cec1d
 
 #### Manual
 
-- [x] 1.3 Test names in output map clearly to risk scenarios from test-plan §2
+- [x] 1.3 Test names in output map clearly to risk scenarios from test-plan §2 — d3cec1d
 
 ### Phase 2: Missing-key test + cookbook update (Risk #5)
 
 #### Automated
 
-- [ ] 2.1 `npm run test` — all 6 tests pass (both files)
-- [ ] 2.2 `npm run lint` passes
+- [x] 2.1 `npm run test` — all 6 tests pass (both files)
+- [x] 2.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.3 `test-plan.md §6.2` contains complete cookbook pattern (no longer TBD)
-- [ ] 2.4 `test-plan.md §3 Phase 1` status shows `complete`
+- [x] 2.3 `test-plan.md §6.2` contains complete cookbook pattern (no longer TBD)
+- [x] 2.4 `test-plan.md §3 Phase 1` status shows `complete`
