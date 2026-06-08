@@ -234,10 +234,10 @@ One test: call `POST` with a fully valid context (`user: { id: "user-1" }`, vali
 
 #### Automated
 
-- [x] 2.1 `npm run test` — all 6 tests pass (both files)
-- [x] 2.2 `npm run lint` passes
+- [x] 2.1 `npm run test` — all 6 tests pass (both files) — dbd662c
+- [x] 2.2 `npm run lint` passes — dbd662c
 
 #### Manual
 
-- [x] 2.3 `test-plan.md §6.2` contains complete cookbook pattern (no longer TBD)
-- [x] 2.4 `test-plan.md §3 Phase 1` status shows `complete`
+- [x] 2.3 `test-plan.md §6.2` contains complete cookbook pattern (no longer TBD) — dbd662c
+- [x] 2.4 `test-plan.md §3 Phase 1` status shows `complete` — dbd662c
