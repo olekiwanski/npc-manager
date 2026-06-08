@@ -155,6 +155,8 @@ vi.mock("@anthropic-ai/sdk", () => ({
 }));
 ```
 
+> **Caveat:** `stream: vi.fn()` returns `undefined` by default. If a test reaches the `for await (const event of stream)` call in the route, it will throw `TypeError: stream is not iterable`. For tests that need to exercise the streaming path, `stream` must return an async iterable — see §6.3 when completed for the streaming mock pattern.
+
 **`makeSupabaseMock()` chain pattern** — call in `beforeEach` to get a fresh object per test:
 
 ```typescript

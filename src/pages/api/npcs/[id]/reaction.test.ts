@@ -48,8 +48,9 @@ beforeEach(() => {
 });
 
 describe("scenario validation", () => {
-  // Zod validation fires before the ownership query (reaction.ts:39 vs :49),
-  // so the Supabase mock is inert here — maybeSingle is never called.
+  // Auth guard fires first (reaction.ts:28), so a valid user is required here.
+  // Zod fires before the ownership query (reaction.ts:39 vs :49),
+  // so the Supabase mock is inert — maybeSingle is never called.
   it("returns 400 when scenario is empty string", async () => {
     const response = await POST(
       makeContext({ user: { id: "user-1" }, body: { scenario: "" } }) as unknown as Parameters<typeof POST>[0],
