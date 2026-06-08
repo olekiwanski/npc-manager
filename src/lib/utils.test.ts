@@ -19,7 +19,7 @@ describe("cn", () => {
   });
 
   it("handles conditional classes", () => {
-    const isActive = true;
+    const isActive = true as boolean;
     expect(cn("btn", isActive && "btn-active")).toBe("btn btn-active");
   });
 

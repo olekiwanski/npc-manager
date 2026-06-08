@@ -100,6 +100,8 @@ describe("NpcList", () => {
     fireEvent.click(screen.getByRole("button", { name: /delete/i }));
 
     if (resolveFirst) resolveFirst();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
   });
 });
