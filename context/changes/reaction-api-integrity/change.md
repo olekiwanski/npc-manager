@@ -1,7 +1,7 @@
 ---
 change_id: reaction-api-integrity
 title: Test Phase 1 — API route integrity (risks #1, #2, #5)
-status: implemented
+status: impl_reviewed
 created: 2026-06-08
 updated: 2026-06-08
 archived_at: null
