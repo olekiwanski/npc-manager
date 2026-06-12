@@ -76,7 +76,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | API route integrity | Prove the /reaction endpoint rejects invalid inputs, unauthorized access, and missing env key — all via mocked Vitest tests | #1, #2, #5 | unit/integration (vi.mock) | complete | reaction-api-integrity |
-| 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | not started | — |
+| 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | complete | testing-streaming-context |
 | 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | not started | — |
 
 **Status vocabulary** (parser literals):
@@ -198,7 +198,69 @@ await POST(makeContext({ ... }) as unknown as Parameters<typeof POST>[0])
 
 ### 6.3 Adding a streaming component test
 
-TBD — see §3 Phase 2. Pattern will cover: mocking `fetch` to return a `ReadableStream` that simulates SSE frames (including fragmented chunks), testing accumulated text state, and testing error-frame handling in the React island.
+- **Location**: co-located with source as `src/components/npcs/NpcReaction.test.tsx`
+- **Reference test**: `src/components/npcs/NpcReaction.test.tsx` (2 cases — fragmented chunk and single-chunk non-regression anchor)
+- **Run locally**: `npm run test` or `vitest run src/components/npcs/NpcReaction.test.tsx`
+
+**Required file directive** — must be the very first line:
+
+```typescript
+// @vitest-environment jsdom
+```
+
+**`fetch` stub setup** — pattern from `NpcList.test.tsx`:
+
+```typescript
+const fetchMock = vi.fn();
+
+beforeEach(() => {
+  fetchMock.mockReset();
+  vi.stubGlobal("fetch", fetchMock);
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
+```
+
+**`makeFragmentedStream` helper** — pass an array of string chunks; each is enqueued on successive `pull` calls:
+
+```typescript
+function makeFragmentedStream(chunks: string[]): ReadableStream<Uint8Array> {
+  let i = 0;
+  return new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (i < chunks.length) {
+        controller.enqueue(new TextEncoder().encode(chunks[i++]));
+      } else {
+        controller.close();
+      }
+    },
+  });
+}
+```
+
+**Wire `fetchMock`** to return a response with the stream as the body:
+
+```typescript
+fetchMock.mockResolvedValueOnce({
+  ok: true,
+  status: 200,
+  body: makeFragmentedStream([...chunks...]),
+});
+```
+
+**SSE frame format** used by the route: `data: ${JSON.stringify({ text })}\n\n` for text events and `data: [DONE]\n\n` as the terminal frame. To simulate fragmentation, split a single frame string across two array entries.
+
+**Assertion pattern** — use `screen.findByText` (async, equivalent to `waitFor` + `getByText`):
+
+```typescript
+await screen.findByText("expected accumulated text");
+expect(screen.queryByText(/network error/i)).toBeNull();
+```
+
+**Component props**: `NpcReaction` takes `{ npcId: string }`. Render with `render(<NpcReaction npcId="npc-1" />)`, then interact via `fireEvent.change` on the textarea and `fireEvent.click` on the button (`name: /ask/i`).
 
 ### 6.4 Wiring the CI test gate
 

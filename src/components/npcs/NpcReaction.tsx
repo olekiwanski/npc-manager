@@ -51,12 +51,16 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
+      let lineBuffer = "";
       outer: for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
+        lineBuffer += chunk;
+        const lines = lineBuffer.split("\n");
+        lineBuffer = lines.pop() ?? "";
+        for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           const raw = line.slice(6).trim();
           if (raw === "[DONE]") break outer;
@@ -73,6 +77,24 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
           } catch {
             // malformed frame — skip
           }
+        }
+      }
+      for (const line of lineBuffer.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const raw = line.slice(6).trim();
+        if (raw === "[DONE]") break;
+        try {
+          const parsed = JSON.parse(raw) as { text?: string; error?: string };
+          if (parsed.error) {
+            setError(parsed.error);
+            break;
+          }
+          if (parsed.text !== undefined) {
+            const text = parsed.text;
+            setReactionText((prev) => prev + text);
+          }
+        } catch {
+          // malformed frame — skip
         }
       }
     } catch (err) {
