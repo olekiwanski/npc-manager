@@ -107,4 +107,4 @@ No new tests are written for this change — the change is itself the CI gate fo
 
 - [x] 1.3 Step order confirmed in `.github/workflows/ci.yml` (lint → test → build) — d5b2e4b
 - [x] 1.4 §6.4 TBD placeholder replaced with finalized pattern — d5b2e4b
-- [ ] 1.5 CI run passes in GitHub Actions with test step visible
+- [x] 1.5 CI run passes in GitHub Actions with test step visible

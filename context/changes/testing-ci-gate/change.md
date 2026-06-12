@@ -1,7 +1,7 @@
 ---
 change_id: testing-ci-gate
 title: Testing ci gate
-status: implementing
+status: implemented
 created: 2026-06-12
 updated: 2026-06-12
 archived_at: null
