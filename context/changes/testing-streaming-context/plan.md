@@ -111,6 +111,8 @@ A single new test file exercises the full happy path of `reaction.ts` — all gu
 
 #### Manual Verification
 
+> Agent note: perform this step yourself before requesting user confirmation — comment out the line, run the test suite to confirm the new test goes red, then restore and re-run to confirm green.
+
 - Sanity: comment out `system: systemPrompt` in `reaction.ts:82`, confirm the new test goes red, then restore
 
 ---
@@ -272,12 +274,12 @@ Fill §6.3 of `test-plan.md` with the streaming component test pattern establish
 
 #### Automated
 
-- [ ] 1.1 `npm run test` passes with new test green (all existing tests + reaction.context.test.ts)
-- [ ] 1.2 `npm run lint` passes
+- [x] 1.1 `npm run test` passes with new test green (all existing tests + reaction.context.test.ts)
+- [x] 1.2 `npm run lint` passes
 
 #### Manual
 
-- [ ] 1.3 Sanity: comment out `system: systemPrompt` in reaction.ts, confirm new test goes red, then restore
+- [x] 1.3 Sanity: comment out `system: systemPrompt` in reaction.ts, confirm new test goes red, then restore
 
 ### Phase 2: Risk #3 — SSE fragmentation test + lineBuffer fix
 
