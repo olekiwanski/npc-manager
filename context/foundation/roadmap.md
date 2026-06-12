@@ -74,7 +74,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Auth jest present w baseline, ale nie był jeszcze testowany pod kątem session-gated product routes; pierwsza integracja kampanii to de facto pierwszy real test RLS — jeśli izolacja danych zawiedzie, widać to tu.
-- **Status:** done — zmergowane (PR #1).
+- **Status:** done
 
 ### S-02: NPC — zarządzanie
 
@@ -139,6 +139,7 @@ Brak otwartych pytań — PRD w pełni wypełniony, zero open questions ("No ope
 
 ## Done
 
+- **S-01: user can create a campaign with name and description, view the list of their own campaigns, and edit or delete a campaign they own; the existing auth flow (registration, login, logout) is verified as working end-to-end against product routes.** — Archived 2026-06-12 → `context/archive/2026-06-04-campaigns-crud/`. Lesson: —.
 - **S-02: user can add an NPC to a campaign (name, role, traits), view NPC detail, edit the NPC's profile, and delete the NPC.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-crud/`. Lesson: —.
 - **S-03: user can create a relationship between two NPCs (type and description), view all relationships for an NPC, and delete a relationship.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-relationships/`. Lesson: —.
 - **S-04: user can submit a natural-language scenario query for a single NPC and receive a streamed, in-character AI response that references the NPC's role, traits, and known relationships; visible progress feedback appears within 2 seconds of submission.** — Archived 2026-06-12 → `context/archive/2026-06-07-npc-ai-reaction/`. Lesson: —.
