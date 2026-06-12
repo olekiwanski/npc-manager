@@ -87,7 +87,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - ~~Jakie jest zachowanie cascade przy usunięciu NPC posiadającego relacje?~~ — RESOLVED w S-03: oba FK NPC w `npc_has_npc` są `on delete cascade`, więc usunięcie NPC kasuje każdą relację, w której występuje (z obu stron). Zweryfikowane na poziomie DB.
 - **Risk:** Profil NPC (name, role, traits) jest bezpośrednim wejściem do zapytania AI — jeśli model danych jest tu zbyt ograniczony, FR-010 będzie wymagał rework; bezpieczniej zwalidować kształt profilu przed podłączeniem warstwy AI.
-- **Status:** done — zmergowane (PR #2).
+- **Status:** done
 
 ### S-03: Relacje między postaciami
 
@@ -139,4 +139,5 @@ Brak otwartych pytań — PRD w pełni wypełniony, zero open questions ("No ope
 
 ## Done
 
+- **S-02: user can add an NPC to a campaign (name, role, traits), view NPC detail, edit the NPC's profile, and delete the NPC.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-crud/`. Lesson: —.
 - **S-03: user can create a relationship between two NPCs (type and description), view all relationships for an NPC, and delete a relationship.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-relationships/`. Lesson: —.
