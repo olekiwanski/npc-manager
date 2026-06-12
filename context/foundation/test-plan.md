@@ -32,6 +32,11 @@ Tests follow three non-negotiable principles for this project:
 no Cloudflare Workers deployment. This is a deliberate project constraint
 (Phase 2 interview Q5) that applies to every rollout phase.
 
+**E2E exception (Phase 4):** E2E tests run against the local dev server with
+real Supabase auth. This is the only exception — E2E cannot mock away the
+running app. Requires `npx supabase start` and `.dev.vars` with local
+credentials. `TEST_EMAIL` / `TEST_PASSWORD` env vars identify the test account.
+
 Hot-spot scope used for likelihood weighting: `src/` (18 commits / 30d).
 Top directories: `src/components/npcs` (11), `src/components/campaigns` (11),
 `src/lib` (7), `src/pages/campaigns/[id]/npcs/[npcId]` (6),
@@ -54,6 +59,8 @@ research's job, see §1 principle #3).
 | 3 | SSE streaming fragmentation — naive line-split parser loses or corrupts content when a frame arrives across two TCP reads; GM sees truncated output with no error signal | Medium | Low-Medium | Interview Q3; roadmap S-04 plan (explicitly flagged as MVP tradeoff); hot-spot dir `src/components/npcs` (11 commits/30d) |
 | 4 | NPC context silently absent from Claude call — nullable-field regression or roster-lookup failure produces a minimal system prompt; GM receives a generic response indistinguishable from an in-character one | Medium | Low | PRD US-01 ("response references NPC's role, traits, and known relationships"); roadmap S-04 Phase 2 (unit tests cover nulls but no route-level integration) |
 | 5 | Missing ANTHROPIC_API_KEY causes unhandled runtime crash — the key is optional in the Astro env schema (to pass CI without the secret); if absent from the deployment environment, the route throws instead of returning a clean 503 | Medium | Low-Medium | Roadmap S-04 Phase 1 (env schema design note); hot-spot dir `src/pages/api/npcs/[id]` (2 commits/30d) |
+| 6 | Unauthenticated browser request to a protected route (`/dashboard`, `/campaigns`) reaches page content instead of redirecting to `/auth/signin` — middleware redirect is only tested at unit level; actual browser redirect (URL change, page content) is untested | Medium | Low | `src/middleware.ts` PROTECTED_ROUTES; unit tests mock the redirect but don't fire a real HTTP request |
+| 7 | Sign-in form with valid credentials does not redirect to `/dashboard` — the full auth loop (form submit → Supabase auth → session cookie → middleware → redirect) is never exercised end-to-end | High | Low | PRD auth requirements; `src/pages/api/auth/signin.ts`; `src/middleware.ts` |
 
 ### Risk Response Guidance
 
@@ -64,6 +71,8 @@ research's job, see §1 principle #3).
 | #3 | When a response chunk is split mid-data line, accumulated text is complete and error state is not triggered | "Cloudflare Workers always flushes complete frames" — true under normal conditions, not under backpressure | The SSE parsing loop implementation; whether lines are buffered across chunk boundaries | Unit — mock ReadableStream with fragmented chunks | Only testing with complete single-frame chunks (the happy path) |
 | #4 | Anthropic client is called with a non-empty `system` parameter containing NPC name and role for a fully-populated NPC | "buildNpcSystemPrompt unit tests prove the route works" — they prove the function, not that the route passes its output correctly | Where and how the route passes the system prompt to the Anthropic client | Unit/integration — mock Anthropic client, capture call args | Asserting AI response content (non-deterministic oracle — assertions would mirror production logic) |
 | #5 | When ANTHROPIC_API_KEY is undefined at runtime, route returns 503 with error body (no unhandled crash/500) | "optional: true means graceful degradation" — it means the build passes; runtime behavior depends on the code | Whether the route has an explicit undefined check before calling the SDK | Unit — mock the Astro env module to return undefined | Only testing that `npm run build` passes without the key |
+| #6 | Visiting `/dashboard` or `/campaigns` as unauthenticated user → browser URL changes to `/auth/signin`; sign-in heading visible | "The middleware redirects" — unit test mocks the request; real browser may differ | How the middleware response reaches the browser as a 302/redirect | E2E — `waitForURL('**/auth/signin')` + `getByRole('heading', { name: 'Sign in' })` | Only testing at unit level with mocked request; must fire real browser request |
+| #7 | Fill `Email` + `Password` with valid credentials, click `Sign in` → `waitForURL('**/campaigns')`; campaigns heading visible; `playwright/.auth/user.json` contains valid session | "Supabase handles auth so it works" — integration between API route, cookie setting, middleware, and redirect is untested | How `src/pages/api/auth/signin.ts` sets the session cookie and how middleware reads it | E2E — real Supabase required; `getByLabel` + `getByRole` + `waitForURL` | Testing only the Supabase SDK in isolation; must test the full browser loop |
 
 ---
 
@@ -78,6 +87,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1 | API route integrity | Prove the /reaction endpoint rejects invalid inputs, unauthorized access, and missing env key — all via mocked Vitest tests | #1, #2, #5 | unit/integration (vi.mock) | complete | reaction-api-integrity |
 | 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | complete | testing-streaming-context |
 | 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | complete | testing-ci-gate |
+| 4 | Browser auth and routing E2E | Prove the middleware redirect and sign-in flow work in a real browser | #6, #7 | e2e (Playwright, Chromium) | not started | — |
 
 **Status vocabulary** (parser literals):
 `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`
@@ -93,7 +103,7 @@ The classic test base for this project. No e2e layer exists or is planned for th
 | unit + integration | Vitest | ^4.1.6 | Node env by default; `// @vitest-environment jsdom` directive per file for React components |
 | component (UI) | @testing-library/react | ^16.3.2 | jsdom env; existing pattern in `src/components/**/*.test.tsx` |
 | module mocking | vi.mock() (Vitest built-in) | — | Used to mock Supabase client, Anthropic SDK, and astro:env/server across all phases |
-| e2e | none | — | Not planned — Cloudflare/Supabase integration excluded (§7) |
+| e2e | @playwright/test | ^1.60.0 | Chromium; storageState for auth; requires `npx supabase start` + `.dev.vars`; see §1 E2E exception |
 | AI-native | none | — | Not warranted; all risks are addressable at the unit/integration layer cheaply |
 
 **Stack grounding tools (current session):**
@@ -113,7 +123,7 @@ The full set of gates that must pass before a change reaches production.
 | lint + typecheck | local + CI | required (CI already runs this) | type drift, style violations |
 | unit + integration | local + CI | required (CI runs this) | logic regressions, auth bypasses, validation gaps |
 | pre-commit hook | local | required (husky + lint-staged already wired) | lint and format regressions at commit time |
-| e2e on critical flows | — | not planned — see §7 | — |
+| e2e on critical flows | local (manual / pre-push) | Phase 4 — not yet required | browser auth and routing regressions |
 | visual diff / multimodal review | — | not planned for this rollout | — |
 
 ---
