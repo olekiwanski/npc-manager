@@ -27,6 +27,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# stryker mutation reports
+reports/
+
 # claude code
 .claude/
 .mcp.json
