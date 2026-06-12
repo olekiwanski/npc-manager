@@ -3,7 +3,7 @@ project: NPC Manager
 version: 1
 status: draft
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-12
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -33,7 +33,7 @@ Game Masters running TTRPG campaigns manage dozens of NPCs across motivations, b
 | S-01 | campaigns-crud    | create, view, edit, and delete own campaigns; existing auth flow verified end-to-end                                    | F-01          | FR-001, FR-002, FR-003, FR-004, FR-005                     | done     |
 | S-02 | npc-crud          | add, view, edit, and delete NPCs within a campaign                                                                      | F-01, S-01    | FR-006, FR-007                                             | done     |
 | S-03 | npc-relationships | create, view, and delete relationships between two NPCs                                                                 | S-02          | FR-008, FR-009                                             | done     |
-| S-04 | npc-ai-reaction   | submit a natural-language scenario and receive a streamed in-character AI response referencing NPC traits and relationships | S-03          | FR-010, US-01                                              | ready    |
+| S-04 | npc-ai-reaction   | submit a natural-language scenario and receive a streamed in-character AI response referencing NPC traits and relationships | S-03          | FR-010, US-01                                              | done     |
 
 ## Baseline
 
@@ -74,7 +74,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Auth jest present w baseline, ale nie był jeszcze testowany pod kątem session-gated product routes; pierwsza integracja kampanii to de facto pierwszy real test RLS — jeśli izolacja danych zawiedzie, widać to tu.
-- **Status:** done — zmergowane (PR #1).
+- **Status:** done
 
 ### S-02: NPC — zarządzanie
 
@@ -87,7 +87,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - ~~Jakie jest zachowanie cascade przy usunięciu NPC posiadającego relacje?~~ — RESOLVED w S-03: oba FK NPC w `npc_has_npc` są `on delete cascade`, więc usunięcie NPC kasuje każdą relację, w której występuje (z obu stron). Zweryfikowane na poziomie DB.
 - **Risk:** Profil NPC (name, role, traits) jest bezpośrednim wejściem do zapytania AI — jeśli model danych jest tu zbyt ograniczony, FR-010 będzie wymagał rework; bezpieczniej zwalidować kształt profilu przed podłączeniem warstwy AI.
-- **Status:** done — zmergowane (PR #2).
+- **Status:** done
 
 ### S-03: Relacje między postaciami
 
@@ -99,7 +99,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Relacje są kontekstem relacyjnym przekazywanym do zapytania AI w S-04; niepełne lub źle ustrukturyzowane dane relacyjne obniżą jakość odpowiedzi AI — lepiej zwalidować kształt danych tu, zanim zostaną podłączone do warstwy AI.
-- **Status:** done — zmergowane (PR #3, commity p1–p4 + epilog). Czeka na `/10x-archive`.
+- **Status:** done
 
 ### S-04: Reakcja NPC — zapytanie AI
 
@@ -112,7 +112,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Klucz Anthropic API musi być dostępny w środowisku deploymentu. — Owner: user. Block: no. (Klucz potrzebny przy implementacji/deploy, nie przy planowaniu.)
 - **Risk:** Integracja AI dodaje zewnętrzne opóźnienie i koszt; NFR 2 sekund widocznego feedbacku wymaga obsługi streaming response — to najwyższe ryzyko techniczne w roadmapie; celowo umieszczone jako ostatnie, żeby CRUD był zwalidowany przed podłączeniem warstwy AI.
-- **Status:** ready — prerequisite S-03 ukończony; gotowy do `/10x-plan npc-ai-reaction`.
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -139,4 +139,7 @@ Brak otwartych pytań — PRD w pełni wypełniony, zero open questions ("No ope
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here when a change whose Change ID matches a roadmap item is archived.)
+- **S-01: user can create a campaign with name and description, view the list of their own campaigns, and edit or delete a campaign they own; the existing auth flow (registration, login, logout) is verified as working end-to-end against product routes.** — Archived 2026-06-12 → `context/archive/2026-06-04-campaigns-crud/`. Lesson: —.
+- **S-02: user can add an NPC to a campaign (name, role, traits), view NPC detail, edit the NPC's profile, and delete the NPC.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-crud/`. Lesson: —.
+- **S-03: user can create a relationship between two NPCs (type and description), view all relationships for an NPC, and delete a relationship.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-relationships/`. Lesson: —.
+- **S-04: user can submit a natural-language scenario query for a single NPC and receive a streamed, in-character AI response that references the NPC's role, traits, and known relationships; visible progress feedback appears within 2 seconds of submission.** — Archived 2026-06-12 → `context/archive/2026-06-07-npc-ai-reaction/`. Lesson: —.
