@@ -3,7 +3,7 @@ project: NPC Manager
 version: 1
 status: draft
 created: 2026-06-04
-updated: 2026-06-04
+updated: 2026-06-12
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -99,7 +99,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Relacje są kontekstem relacyjnym przekazywanym do zapytania AI w S-04; niepełne lub źle ustrukturyzowane dane relacyjne obniżą jakość odpowiedzi AI — lepiej zwalidować kształt danych tu, zanim zostaną podłączone do warstwy AI.
-- **Status:** done — zmergowane (PR #3, commity p1–p4 + epilog). Czeka na `/10x-archive`.
+- **Status:** done
 
 ### S-04: Reakcja NPC — zapytanie AI
 
@@ -139,4 +139,4 @@ Brak otwartych pytań — PRD w pełni wypełniony, zero open questions ("No ope
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here when a change whose Change ID matches a roadmap item is archived.)
+- **S-03: user can create a relationship between two NPCs (type and description), view all relationships for an NPC, and delete a relationship.** — Archived 2026-06-12 → `context/archive/2026-06-04-npc-relationships/`. Lesson: —.
