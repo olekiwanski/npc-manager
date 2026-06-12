@@ -31,5 +31,6 @@ pnpm-debug.log*
 reports/
 
 # claude code
-.claude/
+.claude/*
+!.claude/settings.json
 .mcp.json
