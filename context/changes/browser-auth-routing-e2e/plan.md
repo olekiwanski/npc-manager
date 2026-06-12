@@ -375,11 +375,11 @@ session for both tests regardless of the authenticated project's default
 
 #### Automated
 
-- [x] 4.1 `npm run test:e2e` exits 0 with both `signin.auth.spec.ts` tests passing
-- [x] 4.2 Lint passes: `npm run lint`
+- [x] 4.1 `npm run test:e2e` exits 0 with both `signin.auth.spec.ts` tests passing — fb54426
+- [x] 4.2 Lint passes: `npm run lint` — fb54426
 
 #### Manual
 
-- [x] 4.3 Playwright HTML report shows both tests green
-- [x] 4.4 Trace confirms happy-path test lands on `/campaigns` with session active
-- [x] 4.5 Error-path test shows "Invalid login credentials" visible on sign-in page
+- [x] 4.3 Playwright HTML report shows both tests green — fb54426
+- [x] 4.4 Trace confirms happy-path test lands on `/campaigns` with session active — fb54426
+- [x] 4.5 Error-path test shows "Invalid login credentials" visible on sign-in page — fb54426
