@@ -353,23 +353,23 @@ session for both tests regardless of the authenticated project's default
 
 #### Automated
 
-- [x] 2.1 `npx playwright test --list` shows setup + authenticated projects
-- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 `npx playwright test --list` shows setup + authenticated projects — e499b94
+- [x] 2.2 Lint passes: `npm run lint` — e499b94
 
 #### Manual
 
-- [x] 2.3 `.dev.vars` contains TEST_EMAIL and TEST_PASSWORD with real values
-- [x] 2.4 `.env.example` shows the two commented placeholder lines
+- [x] 2.3 `.dev.vars` contains TEST_EMAIL and TEST_PASSWORD with real values — e499b94
+- [x] 2.4 `.env.example` shows the two commented placeholder lines — e499b94
 
 ### Phase 3: Auth Setup File
 
 #### Automated
 
-- [ ] 3.1 `npx playwright test --project=setup` exits 0 and creates `playwright/.auth/user.json`
+- [x] 3.1 `npx playwright test --project=setup` exits 0 and creates `playwright/.auth/user.json`
 
 #### Manual
 
-- [ ] 3.2 `playwright/.auth/user.json` exists with non-empty cookies array
+- [x] 3.2 `playwright/.auth/user.json` exists with non-empty cookies array
 
 ### Phase 4: Risk #7 Tests
 
