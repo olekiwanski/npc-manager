@@ -76,7 +76,7 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | API route integrity | Prove the /reaction endpoint rejects invalid inputs, unauthorized access, and missing env key — all via mocked Vitest tests | #1, #2, #5 | unit/integration (vi.mock) | complete | reaction-api-integrity |
-| 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | not started | — |
+| 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | implementing | testing-streaming-context |
 | 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | not started | — |
 
 **Status vocabulary** (parser literals):
