@@ -365,21 +365,21 @@ session for both tests regardless of the authenticated project's default
 
 #### Automated
 
-- [x] 3.1 `npx playwright test --project=setup` exits 0 and creates `playwright/.auth/user.json`
+- [x] 3.1 `npx playwright test --project=setup` exits 0 and creates `playwright/.auth/user.json` — 73675cf
 
 #### Manual
 
-- [x] 3.2 `playwright/.auth/user.json` exists with non-empty cookies array
+- [x] 3.2 `playwright/.auth/user.json` exists with non-empty cookies array — 73675cf
 
 ### Phase 4: Risk #7 Tests
 
 #### Automated
 
-- [ ] 4.1 `npm run test:e2e` exits 0 with both `signin.auth.spec.ts` tests passing
-- [ ] 4.2 Lint passes: `npm run lint`
+- [x] 4.1 `npm run test:e2e` exits 0 with both `signin.auth.spec.ts` tests passing
+- [x] 4.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 4.3 Playwright HTML report shows both tests green
-- [ ] 4.4 Trace confirms happy-path test lands on `/campaigns` with session active
-- [ ] 4.5 Error-path test shows "Invalid login credentials" visible on sign-in page
+- [x] 4.3 Playwright HTML report shows both tests green
+- [x] 4.4 Trace confirms happy-path test lands on `/campaigns` with session active
+- [x] 4.5 Error-path test shows "Invalid login credentials" visible on sign-in page
