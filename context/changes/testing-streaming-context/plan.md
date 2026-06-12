@@ -274,25 +274,25 @@ Fill §6.3 of `test-plan.md` with the streaming component test pattern establish
 
 #### Automated
 
-- [x] 1.1 `npm run test` passes with new test green (all existing tests + reaction.context.test.ts)
-- [x] 1.2 `npm run lint` passes
+- [x] 1.1 `npm run test` passes with new test green (all existing tests + reaction.context.test.ts) — c1919b5
+- [x] 1.2 `npm run lint` passes — c1919b5
 
 #### Manual
 
-- [x] 1.3 Sanity: comment out `system: systemPrompt` in reaction.ts, confirm new test goes red, then restore
+- [x] 1.3 Sanity: comment out `system: systemPrompt` in reaction.ts, confirm new test goes red, then restore — c1919b5
 
 ### Phase 2: Risk #3 — SSE fragmentation test + lineBuffer fix
 
 #### Automated
 
-- [ ] 2.1 Fragmentation test case is red before the lineBuffer fix
-- [ ] 2.2 Complete-frame test case is green before the lineBuffer fix
-- [ ] 2.3 `npm run test` passes (all tests green) after the lineBuffer fix
-- [ ] 2.4 `npm run lint` passes
+- [x] 2.1 Fragmentation test case is red before the lineBuffer fix
+- [x] 2.2 Complete-frame test case is green before the lineBuffer fix
+- [x] 2.3 `npm run test` passes (all tests green) after the lineBuffer fix
+- [x] 2.4 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.5 No manual verification required for this phase
+- [x] 2.5 No manual verification required for this phase
 
 ### Phase 3: Stryker mutation gate
 

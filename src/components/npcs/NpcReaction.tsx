@@ -51,12 +51,16 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
+      let lineBuffer = "";
       outer: for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
+        lineBuffer += chunk;
+        const lines = lineBuffer.split("\n");
+        lineBuffer = lines.pop() ?? "";
+        for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           const raw = line.slice(6).trim();
           if (raw === "[DONE]") break outer;

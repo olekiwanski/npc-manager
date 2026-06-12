@@ -58,11 +58,6 @@ const npcFixture = {
   updated_at: "2026-01-01T00:00:00Z",
 };
 
-interface MockChain {
-  select: ReturnType<typeof vi.fn>;
-  eq: ReturnType<typeof vi.fn>;
-}
-
 function makeSupabaseMock() {
   const npcChain = {
     select: vi.fn().mockReturnThis(),
@@ -76,15 +71,20 @@ function makeSupabaseMock() {
     or: vi.fn().mockResolvedValue({ data: [], error: null }),
   };
 
-  const rosterChain = {} as MockChain;
+  const rosterChain = {} as { select: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> };
   rosterChain.select = vi.fn().mockReturnValue(rosterChain);
   rosterChain.eq = vi
     .fn()
     .mockReturnValueOnce(rosterChain)
     .mockResolvedValueOnce({ data: [npcFixture], error: null });
 
+  let npcsSeen = 0;
   return {
-    from: vi.fn().mockReturnValueOnce(npcChain).mockReturnValueOnce(relChain).mockReturnValueOnce(rosterChain),
+    from: vi
+      .fn()
+      .mockImplementation((table: string) =>
+        table === "npc_has_npc" ? relChain : npcsSeen++ ? rosterChain : npcChain,
+      ),
   };
 }
 
@@ -104,11 +104,16 @@ describe("context wiring", () => {
       }) as unknown as Parameters<typeof POST>[0],
     );
 
+    expect(mockStreamCall).toHaveBeenCalledTimes(1);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     expect(mockStreamCall).toHaveBeenCalledWith(expect.objectContaining({ system: expect.stringContaining("Gareth") }));
     expect(mockStreamCall).toHaveBeenCalledWith(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       expect.objectContaining({ system: expect.stringContaining("merchant") }),
+    );
+    expect(mockStreamCall).toHaveBeenCalledWith(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      expect.objectContaining({ system: expect.stringContaining("clever, greedy") }),
     );
   });
 });

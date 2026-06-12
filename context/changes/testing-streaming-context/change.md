@@ -1,7 +1,7 @@
 ---
 change_id: testing-streaming-context
 title: Test Phase 2 — Streaming and context correctness (risks #3, #4)
-status: implementing
+status: impl_reviewed
 created: 2026-06-12
 updated: 2026-06-12
 
