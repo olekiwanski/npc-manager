@@ -285,14 +285,14 @@ Fill §6.3 of `test-plan.md` with the streaming component test pattern establish
 
 #### Automated
 
-- [x] 2.1 Fragmentation test case is red before the lineBuffer fix
-- [x] 2.2 Complete-frame test case is green before the lineBuffer fix
-- [x] 2.3 `npm run test` passes (all tests green) after the lineBuffer fix
-- [x] 2.4 `npm run lint` passes
+- [x] 2.1 Fragmentation test case is red before the lineBuffer fix — 972a885
+- [x] 2.2 Complete-frame test case is green before the lineBuffer fix — 972a885
+- [x] 2.3 `npm run test` passes (all tests green) after the lineBuffer fix — 972a885
+- [x] 2.4 `npm run lint` passes — 972a885
 
 #### Manual
 
-- [x] 2.5 No manual verification required for this phase
+- [x] 2.5 No manual verification required for this phase — 972a885
 
 ### Phase 3: Stryker mutation gate
 

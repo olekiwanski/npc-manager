@@ -44,6 +44,7 @@ describe("NpcReaction", () => {
     expect(screen.queryByText(/network error|stream interrupted/i)).toBeNull();
   });
 
+  // baseline: non-fragmented path; green before and after the lineBuffer fix
   it("accumulates complete text when SSE data line arrives in a single chunk", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,

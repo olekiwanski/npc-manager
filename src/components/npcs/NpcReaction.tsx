@@ -79,6 +79,24 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
           }
         }
       }
+      for (const line of lineBuffer.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        const raw = line.slice(6).trim();
+        if (raw === "[DONE]") break;
+        try {
+          const parsed = JSON.parse(raw) as { text?: string; error?: string };
+          if (parsed.error) {
+            setError(parsed.error);
+            break;
+          }
+          if (parsed.text !== undefined) {
+            const text = parsed.text;
+            setReactionText((prev) => prev + text);
+          }
+        } catch {
+          // malformed frame — skip
+        }
+      }
     } catch (err) {
       if (err instanceof Error && err.name !== "AbortError") {
         setError("Network error. Please try again.");
