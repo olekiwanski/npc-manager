@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-08
+> Last updated: 2026-06-12
 
 ---
 
@@ -77,7 +77,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | API route integrity | Prove the /reaction endpoint rejects invalid inputs, unauthorized access, and missing env key — all via mocked Vitest tests | #1, #2, #5 | unit/integration (vi.mock) | complete | reaction-api-integrity |
 | 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | complete | testing-streaming-context |
-| 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | change opened | testing-ci-gate |
+| 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | complete | testing-ci-gate |
 
 **Status vocabulary** (parser literals):
 `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`
@@ -111,7 +111,7 @@ The full set of gates that must pass before a change reaches production.
 | Gate | Where | Required? | Catches |
 |------|-------|-----------|---------|
 | lint + typecheck | local + CI | required (CI already runs this) | type drift, style violations |
-| unit + integration | local + CI | required after §3 Phase 3 | logic regressions, auth bypasses, validation gaps |
+| unit + integration | local + CI | required (CI runs this) | logic regressions, auth bypasses, validation gaps |
 | pre-commit hook | local | required (husky + lint-staged already wired) | lint and format regressions at commit time |
 | e2e on critical flows | — | not planned — see §7 | — |
 | visual diff / multimodal review | — | not planned for this rollout | — |
