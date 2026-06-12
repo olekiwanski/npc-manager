@@ -343,23 +343,23 @@ session for both tests regardless of the authenticated project's default
 
 #### Automated
 
-- [x] 1.1 Lint passes: `npm run lint`
+- [x] 1.1 Lint passes: `npm run lint` — bf23281
 
 #### Manual
 
-- [x] 1.2 Risk #7 row shows `waitForURL('**/campaigns')` and `campaigns heading visible`
+- [x] 1.2 Risk #7 row shows `waitForURL('**/campaigns')` and `campaigns heading visible` — bf23281
 
 ### Phase 2: Infrastructure
 
 #### Automated
 
-- [ ] 2.1 `npx playwright test --list` shows setup + authenticated projects
-- [ ] 2.2 Lint passes: `npm run lint`
+- [x] 2.1 `npx playwright test --list` shows setup + authenticated projects
+- [x] 2.2 Lint passes: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 `.dev.vars` contains TEST_EMAIL and TEST_PASSWORD with real values
-- [ ] 2.4 `.env.example` shows the two commented placeholder lines
+- [x] 2.3 `.dev.vars` contains TEST_EMAIL and TEST_PASSWORD with real values
+- [x] 2.4 `.env.example` shows the two commented placeholder lines
 
 ### Phase 3: Auth Setup File
 
