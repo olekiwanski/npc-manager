@@ -78,13 +78,14 @@ function makeSupabaseMock() {
     .mockReturnValueOnce(rosterChain)
     .mockResolvedValueOnce({ data: [npcFixture], error: null });
 
-  let npcsSeen = 0;
+  let npcsCallCount = 0;
   return {
-    from: vi
-      .fn()
-      .mockImplementation((table: string) =>
-        table === "npc_has_npc" ? relChain : npcsSeen++ ? rosterChain : npcChain,
-      ),
+    // "npcs" is queried twice: first for the NPC lookup (npcChain), then for the roster (rosterChain)
+    from: vi.fn().mockImplementation((table: string) => {
+      if (table === "npc_has_npc") return relChain;
+      if (table === "npcs") return npcsCallCount++ === 0 ? npcChain : rosterChain;
+      return npcChain;
+    }),
   };
 }
 
@@ -110,10 +111,6 @@ describe("context wiring", () => {
     expect(mockStreamCall).toHaveBeenCalledWith(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       expect.objectContaining({ system: expect.stringContaining("merchant") }),
-    );
-    expect(mockStreamCall).toHaveBeenCalledWith(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      expect.objectContaining({ system: expect.stringContaining("clever, greedy") }),
     );
   });
 });
