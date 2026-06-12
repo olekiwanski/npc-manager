@@ -298,19 +298,19 @@ Fill §6.3 of `test-plan.md` with the streaming component test pattern establish
 
 #### Automated
 
-- [x] 3.1 `npx stryker run --mutate "src/components/npcs/NpcReaction.tsx"` exits without error
-- [x] 3.2 HTML report generated at `reports/mutation/index.html`
+- [x] 3.1 `npx stryker run --mutate "src/components/npcs/NpcReaction.tsx"` exits without error — 40f4fb0
+- [x] 3.2 HTML report generated at `reports/mutation/index.html` — 40f4fb0
 
 #### Manual
 
-- [x] 3.3 lineBuffer-accumulation mutant killed by fragmentation test case; survived mutants reviewed and consciously accepted or addressed
+- [x] 3.3 lineBuffer-accumulation mutant killed by fragmentation test case; survived mutants reviewed and consciously accepted or addressed — 40f4fb0
 
 ### Phase 4: Cookbook update + rollout status
 
 #### Automated
 
-- [ ] 4.1 `context/foundation/test-plan.md §3` Phase 2 row shows `complete`
+- [x] 4.1 `context/foundation/test-plan.md §3` Phase 2 row shows `complete`
 
 #### Manual
 
-- [ ] 4.2 §6.3 cookbook entry is self-contained; a reader unfamiliar with NpcReaction.test.tsx can follow it to add a new streaming component test
+- [x] 4.2 §6.3 cookbook entry is self-contained; a reader unfamiliar with NpcReaction.test.tsx can follow it to add a new streaming component test
