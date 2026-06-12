@@ -77,7 +77,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | API route integrity | Prove the /reaction endpoint rejects invalid inputs, unauthorized access, and missing env key — all via mocked Vitest tests | #1, #2, #5 | unit/integration (vi.mock) | complete | reaction-api-integrity |
 | 2 | Streaming and context correctness | Prove the SSE parser handles fragmented chunks and the Anthropic client receives the correct system prompt | #3, #4 | unit, component-level (mocked fetch) | complete | testing-streaming-context |
-| 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | not started | — |
+| 3 | CI test gate | Add `npm run test` to the CI workflow so no regression can ship without tests running | #1–#5 | CI configuration | change opened | testing-ci-gate |
 
 **Status vocabulary** (parser literals):
 `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`
@@ -264,7 +264,24 @@ expect(screen.queryByText(/network error/i)).toBeNull();
 
 ### 6.4 Wiring the CI test gate
 
-TBD — see §3 Phase 3. Pattern will cover: adding `npm run test` as a step in `.github/workflows/ci.yml` after the existing lint + build steps.
+- **File**: `.github/workflows/ci.yml`
+- **Step to add**: `- run: npm run test`
+- **Placement**: after `npm run lint`, before `npm run build` — `astro sync` already ran as a dedicated step (types are available); tests need no build output; fail fast on logic regressions before paying the ~30–60s build cost
+- **No `env:` block needed**: all three dependencies (`astro:env/server`, `@/lib/supabase`, `@anthropic-ai/sdk`) are mocked via `vi.mock` in every test file that touches them — no real secrets reach CI
+- **Reference implementation**: commit on `testing-ci-gate` branch; see `context/changes/testing-ci-gate/plan.md` for rationale
+
+The final step sequence in the `ci` job:
+
+```yaml
+- run: npm ci
+- run: npx astro sync
+- run: npm run lint
+- run: npm run test
+- run: npm run build
+  env:
+    SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+```
 
 ---
 
