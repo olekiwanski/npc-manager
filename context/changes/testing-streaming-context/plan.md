@@ -309,8 +309,8 @@ Fill §6.3 of `test-plan.md` with the streaming component test pattern establish
 
 #### Automated
 
-- [x] 4.1 `context/foundation/test-plan.md §3` Phase 2 row shows `complete`
+- [x] 4.1 `context/foundation/test-plan.md §3` Phase 2 row shows `complete` — f46089f
 
 #### Manual
 
-- [x] 4.2 §6.3 cookbook entry is self-contained; a reader unfamiliar with NpcReaction.test.tsx can follow it to add a new streaming component test
+- [x] 4.2 §6.3 cookbook entry is self-contained; a reader unfamiliar with NpcReaction.test.tsx can follow it to add a new streaming component test — f46089f
