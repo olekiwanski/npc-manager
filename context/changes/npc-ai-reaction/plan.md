@@ -326,7 +326,7 @@ Embed the `NpcReaction` island in the NPC detail page as a new section below `Re
 
 #### Manual
 
-- [x] 1.3 Local dev server starts without errors after adding `ANTHROPIC_API_KEY` to `.dev.vars`
+- [x] 1.3 Local dev server starts without errors after adding `ANTHROPIC_API_KEY` to `.dev.vars` — 96f722c
 
 ### Phase 2: System Prompt Builder + Unit Tests
 
