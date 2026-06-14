@@ -34,3 +34,8 @@ reports/
 .claude/*
 !.claude/settings.json
 .mcp.json
+
+# playwright
+playwright/.auth/
+playwright-report/
+test-results/
