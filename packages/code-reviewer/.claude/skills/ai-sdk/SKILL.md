@@ -47,7 +47,7 @@ for await (const message of result) {
     console.error(`[info] cost: $${message.total_cost_usd.toFixed(6)} | turns: ${message.num_turns}`);
     return parsed.data;
   }
-  throw new Error(`Review failed (${message.subtype})`);
+  throw new Error(`Review failed (${message.subtype}): ${message.result}`);
 }
 ```
 
