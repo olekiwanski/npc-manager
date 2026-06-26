@@ -277,9 +277,9 @@ Zamiana klas kolorystycznych w komponentach React — karty kampanii, listy NPC,
 
 #### Manual
 
-- [ ] 1.2 Tło aplikacji ciemne stone (nie niebieskie) na wszystkich stronach
-- [ ] 1.3 Nagłówki h1/h2 w foncie Cinzel widoczne na `/auth/signin` i `/campaigns`
-- [ ] 1.4 Dev tools: font Cinzel załadowany z fonts.googleapis.com
+- [x] 1.2 Tło aplikacji ciemne stone (nie niebieskie) na wszystkich stronach
+- [x] 1.3 Nagłówki h1/h2 w foncie Cinzel widoczne na `/auth/signin` i `/campaigns`
+- [x] 1.4 Dev tools: font Cinzel załadowany z fonts.googleapis.com
 
 ### Phase 2: Astro pages — strony auth, landing, app
 
@@ -290,10 +290,10 @@ Zamiana klas kolorystycznych w komponentach React — karty kampanii, listy NPC,
 
 #### Manual
 
-- [ ] 2.3 `/auth/signin`: złoty gradient nagłówka, amber link, brak fioletu
-- [ ] 2.4 `/` (landing): tytuł "NPC Manager", opis aplikacji, dwa przyciski, brak feature cards, orby stone/amber
-- [ ] 2.5 `/campaigns`: złoty gradient, amber przycisk "+ New Campaign"
-- [ ] 2.6 `/dashboard`: wszystkie nagłówki amber/golden
+- [x] 2.3 `/auth/signin`: złoty gradient nagłówka, amber link, brak fioletu
+- [x] 2.4 `/` (landing): tytuł "NPC Manager", opis aplikacji, dwa przyciski, brak feature cards, orby stone/amber
+- [x] 2.5 `/campaigns`: złoty gradient, amber przycisk "+ New Campaign"
+- [x] 2.6 `/dashboard`: wszystkie nagłówki amber/golden
 
 ### Phase 3: React Components
 
@@ -304,8 +304,8 @@ Zamiana klas kolorystycznych w komponentach React — karty kampanii, listy NPC,
 
 #### Manual
 
-- [ ] 3.3 Badge "Active" na CampaignCard w kolorze amber (nie fioletowym)
-- [ ] 3.4 Focus ring na formularzach auth/campaigns/NPC: amber (nie fioletowy)
-- [ ] 3.5 Topbar: muted text stone (nie blue-tinted)
-- [ ] 3.6 Pełen flow signin→campaigns→kampania→NPC bez fioletu, spójna paleta
-- [ ] 3.7 Stany błędów (czerwony) i "Archived" badge (neutral) pozostają niezmienione
+- [x] 3.3 Badge "Active" na CampaignCard w kolorze amber (nie fioletowym)
+- [x] 3.4 Focus ring na formularzach auth/campaigns/NPC: amber (nie fioletowy)
+- [x] 3.5 Topbar: muted text stone (nie blue-tinted)
+- [x] 3.6 Pełen flow signin→campaigns→kampania→NPC bez fioletu, spójna paleta
+- [x] 3.7 Stany błędów (czerwony) i "Archived" badge (neutral) pozostają niezmienione

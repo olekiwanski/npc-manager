@@ -1,10 +1,10 @@
 ---
 change_id: custom-layout
 title: Custom layout
-status: implemented
+status: archived
 created: 2026-06-26
 updated: 2026-06-26
-archived_at: null
+archived_at: 2026-06-26
 ---
 
 ## Notes
