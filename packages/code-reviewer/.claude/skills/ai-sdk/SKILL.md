@@ -1,116 +1,41 @@
-# Claude Agent SDK — Reference
+---
+name: ai-sdk
+description: Claude Agent SDK (@anthropic-ai/claude-agent-sdk) reference for this package — query(), options, message types, structured output, permissions, sessions, and skills.
+---
 
-Paczka `@10xdevs/code-reviewer` używa `@anthropic-ai/claude-agent-sdk` (v0.3+).
-Ten plik opisuje API SDK na poziomie potrzebnym do modyfikowania lub rozszerzania agenta.
+The `packages/code-reviewer` package uses `@anthropic-ai/claude-agent-sdk` v0.3+.
+Full API docs: `references/api-typescript.md`. Skills integration: `references/skills-sdk.md`.
 
 ---
 
-## Funkcja query()
+## Core Pattern
 
-Jedyna funkcja wejściowa. Zwraca async iterable wiadomości.
-
-```ts
+```typescript
 import { query } from "@anthropic-ai/claude-agent-sdk";
 
+for await (const message of query({ prompt, options })) {
+  if (message.type !== "result") continue;
+  if (message.subtype === "success") {
+    // handle result
+  } else {
+    // subtype: "error" | "interrupted" | "limit_exceeded" | "no_response"
+  }
+}
+```
+
+---
+
+## Pattern Used in This Package (`src/agent/reviewer.ts`)
+
+```typescript
 const result = query({
-  prompt: string,           // wejście użytkownika / treść zadania
-  options?: Options,        // konfiguracja agenta (patrz niżej)
-});
-
-for await (const message of result) {
-  // obsługa wiadomości
-}
-```
-
----
-
-## Kluczowe opcje (Options)
-
-```ts
-options: {
-  // Prompt systemowy — string lub preset claude_code
-  systemPrompt: string | { type: "preset"; preset: "claude_code" },
-
-  // Model — dowolny model Anthropic
-  model: "claude-sonnet-4-6" | "claude-haiku-4-5-20251001" | "claude-opus-4-8",
-
-  // Narzędzia — pusta lista = tylko reasoning, bez wywołań narzędzi
-  tools: [],
-
-  // Maksymalna liczba tur pętli narzędziowej
-  maxTurns: 2,
-
-  // Structured output — wymagana konwersja schematu Zod do JSON Schema draft-07
-  outputFormat: {
-    type: "json_schema",
-    schema: z.toJSONSchema(REVIEW_SCHEMA, { target: "draft-07" }),
-  },
-
-  // Twardy limit kosztu — agent zatrzymuje się po przekroczeniu
-  maxBudgetUsd: 0.10,
-
-  // Wznowienie sesji — przekaż session_id z poprzedniego przebiegu
-  resume: sessionId,
-
-  // Dziedziczenie konfiguracji repo (CLAUDE.md, skille)
-  settingSources: ["project"],    // lub ["user"], ["local"]
-  skills: "all",                  // lub lista nazw: ["skill-name"]
-  allowedTools: ["Read", "Grep"], // narzędzia dostępne przy settingSources
-}
-```
-
----
-
-## Typy wiadomości z iteratora
-
-### Wynik końcowy (success)
-
-```ts
-if (message.type === "result" && message.subtype === "success") {
-  message.structured_output   // unknown — przepuść przez REVIEW_SCHEMA.safeParse()
-  message.total_cost_usd      // number — całkowity koszt w USD
-  message.num_turns           // number — liczba tur pętli
-  message.usage               // { input_tokens, output_tokens, cache_read_input_tokens, ... }
-  message.modelUsage          // Record<string, { inputTokens, outputTokens, costUSD }> — per model
-  message.session_id          // string — id do wznowienia przez options.resume
-  message.duration_ms         // number — czas całego przebiegu
-}
-```
-
-### Wynik końcowy (error)
-
-```ts
-if (message.type === "result" && message.subtype !== "success") {
-  // subtype: "error_during_execution" | "error_max_turns" | "error_max_budget_usd" | "error_max_structured_output_retries"
-  message.errors              // string[] — lista komunikatów błędów
-  message.total_cost_usd      // number — koszt do momentu błędu
-}
-```
-
-### Init (session_id)
-
-```ts
-if (message.type === "system" && message.subtype === "init") {
-  message.session_id          // string — złap tu, żeby potem wznawiać
-}
-```
-
----
-
-## Wzorzec używany w tej paczce
-
-### src/agent/reviewer.ts
-
-```ts
-const result = query({
-  prompt: `Zrecenzuj ten diff:\n\n${diff}`,
+  prompt: `Review this diff:\n\n${diff}`,
   options: {
     systemPrompt: SYSTEM_PROMPT,
     model: "claude-sonnet-4-6",
-    tools: [],
+    tools: [],        // no built-in tools — reasoning only
     maxTurns: 2,
     outputFormat: { type: "json_schema", schema: REVIEW_JSON_SCHEMA },
-    maxBudgetUsd: 0.10,
   },
 });
 
@@ -118,76 +43,136 @@ for await (const message of result) {
   if (message.type !== "result") continue;
   if (message.subtype === "success") {
     const parsed = REVIEW_SCHEMA.safeParse(message.structured_output);
-    if (!parsed.success) throw new Error(...);
-    return parsed.data;           // Review
+    if (!parsed.success) throw new Error(`Invalid output: ${parsed.error.message}`);
+    console.error(`[info] cost: $${message.total_cost_usd.toFixed(6)} | turns: ${message.num_turns}`);
+    return parsed.data;
   }
-  throw new Error(`${message.subtype}: ${message.errors.join("; ")}`);
+  throw new Error(`Review failed (${message.subtype})`);
 }
 ```
 
-### Ważne: structured_output wymaga safeParse
+---
 
-SDK waliduje wynik względem schematu wewnętrznie, ale `structured_output` jest typowane
-jako `unknown`. Zawsze przepuszczaj przez `REVIEW_SCHEMA.safeParse()` — inaczej TypeScript
-nie zna kształtu danych.
+## Key Options
 
-### Ważne: target: "draft-07" w toJSONSchema
+```typescript
+options: {
+  systemPrompt: string,      // custom system prompt
+  model: "claude-sonnet-4-6" | "claude-haiku-4-5-20251001" | "claude-opus-4-8",
+  tools: [],                 // restrict available tools; [] = reasoning only
+  allowedTools: ["Read"],    // pre-approve specific tools without prompting
+  maxTurns: 2,               // max tool-use round trips
+  maxBudgetUsd: 0.10,        // hard cost cap; stops with subtype "limit_exceeded"
+  permissionMode: "dontAsk", // see permission modes below
+  resume: sessionId,         // resume a previous session by ID
+  outputFormat: {
+    type: "json_schema",
+    schema: JSONSchema,      // must be draft-07 (see structured output below)
+  },
+  settingSources: ["user", "project"], // which filesystem settings to load (skills, CLAUDE.md)
+  skills: "all",             // or ["skill-name"] or []
+}
+```
 
-Claude Agent SDK wymaga JSON Schema w wersji draft-07. Zod 4 domyślnie generuje draft-2020-12.
+---
 
-```ts
-// POPRAWNIE
+## Structured Output
+
+Requires `outputFormat` option. The SDK validates internally, but `structured_output` is typed as `unknown` — always validate with Zod:
+
+```typescript
+const parsed = REVIEW_SCHEMA.safeParse(message.structured_output);
+if (!parsed.success) throw new Error(parsed.error.message);
+return parsed.data; // now typed as Review
+```
+
+**Draft-07 required** — Zod 4 defaults to draft-2020-12, which the SDK rejects:
+
+```typescript
+// Correct
 const REVIEW_JSON_SCHEMA = z.toJSONSchema(REVIEW_SCHEMA, { target: "draft-07" });
 
-// BŁĄD — structured output odrzuci schemat
+// Wrong — SDK rejects draft-2020-12
 const REVIEW_JSON_SCHEMA = z.toJSONSchema(REVIEW_SCHEMA);
 ```
 
 ---
 
-## Uwierzytelnienie
+## Permission Modes
 
-| Środowisko       | Jak działa                                                        |
-|------------------|-------------------------------------------------------------------|
-| Lokalnie         | Podejmuje credentials z aktywnej sesji Claude Code — bez klucza  |
-| CI/CD            | Wymaga `ANTHROPIC_API_KEY` w zmiennych środowiskowych            |
+| Mode | Behavior |
+|------|----------|
+| `"default"` | Requires `canUseTool` callback for each tool call |
+| `"acceptEdits"` | Auto-approve file edits and common filesystem ops |
+| `"dontAsk"` | Deny anything not in `allowedTools` (good for headless agents) |
+| `"bypassPermissions"` | Run every tool without prompting (sandboxed CI only) |
+| `"auto"` | Model classifier approves/denies each call (TypeScript only) |
+| `"plan"` | Explore without editing |
 
-Przy pracy na subskrypcji konsumenckiej (Pro/Max bez klucza API) dane mogą
-być użyte do treningu. Do środowisk produkcyjnych używaj klucza z konsoli Anthropic.
+For a read-only diff reviewer with `tools: []`, `permissionMode` is not needed — no tools to approve.
 
 ---
 
-## Kontrola kosztów
+## Authentication
 
-```ts
-// Twardy limit per przebieg — agent zatrzymuje się z subtype: "error_max_budget_usd"
+| Environment | How it works |
+|-------------|--------------|
+| Local dev | Uses active Claude Code session credentials — no key needed |
+| CI / production | Requires `ANTHROPIC_API_KEY` environment variable |
+| Bedrock | `CLAUDE_CODE_USE_BEDROCK=1` + AWS credentials |
+| Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` + GCP credentials |
+| Azure | `CLAUDE_CODE_USE_FOUNDRY=1` + Azure credentials |
+
+> Anthropic does not allow offering claude.ai login to third-party users. Use API key auth for any agent you distribute.
+
+---
+
+## Cost Tracking
+
+```typescript
+// Hard limit — agent stops with subtype "limit_exceeded"
 options: { maxBudgetUsd: 0.10 }
 
-// Odczyt kosztu po przebiegu
-message.total_cost_usd        // łączny koszt całego query()
-message.modelUsage            // rozbicie per model, jeśli query używał sub-agentów
+// After a successful run
+message.total_cost_usd    // total cost for this query()
+message.modelUsage        // per-model breakdown (useful with subagents)
 ```
 
-Typowy koszt jednego review (`claude-sonnet-4-6`, 2 tury, diff ~100 linii): **$0.01–$0.04**.
+Typical cost: `claude-sonnet-4-6`, 2 turns, ~100-line diff → **$0.01–$0.04**.
 
 ---
 
-## Wznawianie sesji
+## Session Resumption
 
-```ts
-// Przebieg 1 — złap session_id
+```typescript
+// Run 1 — capture session_id from system init message
 let sessionId: string | undefined;
-for await (const msg of query({ prompt: diffPrompt, options })) {
+for await (const msg of query({ prompt, options })) {
   if (msg.type === "system" && msg.subtype === "init") sessionId = msg.session_id;
-  // ... obsługa wyniku
+  // ...handle result
 }
 
-// Przebieg 2 — wznów kontekst (agent "pamięta" diff i poprzednią analizę)
+// Run 2 — resume with full context (agent "remembers" previous diff and analysis)
 query({
-  prompt: "Autor naniósł poprawki. Czy adresują Twoje uwagi?",
+  prompt: "Author applied fixes. Do they address your concerns?",
   options: { ...options, resume: sessionId },
 });
 ```
 
-Na ten moment `reviewer.ts` nie implementuje wznawiania — każdy przebieg jest niezależny.
-Wznawianie przydaje się przy review iteracyjnym (poprawki po review).
+`reviewer.ts` does not currently implement resumption — each run is independent.
+
+---
+
+## Skills Integration
+
+To load CLAUDE.md, skills, and other filesystem settings:
+
+```typescript
+options: {
+  settingSources: ["user", "project"], // required — skills not discovered without this
+  skills: "all",                        // or ["ai-sdk"] to enable only this skill
+  cwd: "/path/to/packages/code-reviewer"
+}
+```
+
+See `references/skills-sdk.md` for full details on skill discovery and `SKILL.md` authoring.
