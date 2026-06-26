@@ -1,9 +1,11 @@
 ---
 id: code-reviewer-modularize
 title: Modularyzacja packages/code-reviewer
-status: implemented
+status: archived
+created: 2026-06-26
 updated: 2026-06-26
 completed: 2026-06-26
+archived_at: 2026-06-26T08:12:48Z
 ---
 
 Refaktoryzacja packages/code-reviewer/src/index.ts do modularnej struktury:
