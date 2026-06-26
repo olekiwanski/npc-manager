@@ -3,7 +3,7 @@ import { SYSTEM_PROMPT, REVIEW_SCHEMA, REVIEW_JSON_SCHEMA, type Review } from ".
 
 export async function reviewDiff(
   diff: string,
-  opts: { prTitle?: string; prBody?: string } = {}
+  opts: { prTitle?: string; prBody?: string; model?: string } = {}
 ): Promise<Review> {
   const contextParts: string[] = [];
   if (opts.prTitle) contextParts.push(`PR Title: ${opts.prTitle}`);
@@ -14,7 +14,7 @@ export async function reviewDiff(
     prompt: `Review this pull request:\n\n${contextParts.join("\n\n")}`,
     options: {
       systemPrompt: SYSTEM_PROMPT,
-      model: "claude-sonnet-4-6",
+      model: opts.model ?? "claude-sonnet-4-6",
       tools: [],
       maxTurns: 2,
       maxBudgetUsd: 0.1,

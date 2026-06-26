@@ -1,0 +1,55 @@
+diff --git a/supabase/migrations/20260626120000_add_encounter_tracking.sql b/supabase/migrations/20260626120000_add_encounter_tracking.sql
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/supabase/migrations/20260626120000_add_encounter_tracking.sql
+@@ -0,0 +1,55 @@
++-- Migration: encounter session tracking for game masters
++-- Records which NPCs appeared in each game session.
++
++-- Extend npcs with a reference to the session they last appeared in.
++ALTER TABLE npcs ADD COLUMN last_session_id UUID NOT NULL;
++
++-- One row per game session.
++CREATE TABLE encounter_sessions (
++  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
++  user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
++  campaign_id   UUID        NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
++  session_name  TEXT        NOT NULL,
++  started_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
++  ended_at      TIMESTAMPTZ,
++  session_notes TEXT
++);
++
++ALTER TABLE encounter_sessions ENABLE ROW LEVEL SECURITY;
++
++-- Many-to-many: which NPCs appeared in which session.
++CREATE TABLE session_npcs (
++  session_id     UUID        NOT NULL REFERENCES encounter_sessions(id) ON DELETE CASCADE,
++  npc_id         UUID        NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
++  encountered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  PRIMARY KEY (session_id, npc_id)
++);
++
++ALTER TABLE session_npcs ENABLE ROW LEVEL SECURITY;
++
++CREATE POLICY "Users own their session NPCs"
++  ON session_npcs
++  FOR ALL TO authenticated
++  USING (
++    session_id IN (
++      SELECT id FROM encounter_sessions
++       WHERE user_id = auth.uid()
++    )
++  )
++  WITH CHECK (
++    session_id IN (
++      SELECT id FROM encounter_sessions
++       WHERE user_id = auth.uid()
++    )
++  );
++
++-- Performance indexes
++CREATE INDEX idx_encounter_sessions_user     ON encounter_sessions(user_id);
++CREATE INDEX idx_encounter_sessions_campaign ON encounter_sessions(campaign_id);
++CREATE INDEX idx_session_npcs_session        ON session_npcs(session_id);
