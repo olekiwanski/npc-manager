@@ -9,7 +9,7 @@ async function readStdin(): Promise<string> {
 const diff = await readStdin();
 
 if (!diff.trim()) {
-  console.error("Brak diffa na stdin. Użyj: git diff | npx tsx src/index.ts");
+  console.error("No diff on stdin. Usage: git diff | npx tsx src/index.ts");
   process.exit(1);
 }
 

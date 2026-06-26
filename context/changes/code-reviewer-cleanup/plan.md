@@ -151,19 +151,19 @@ Zod field descriptions follow the pattern `"<Dimension>: <what it measures> (sca
 
 #### Automated
 
-- [x] 1.1 No type errors in reviewer.ts
-- [x] 1.2 No Polish strings remain in reviewer.ts
+- [x] 1.1 No type errors in reviewer.ts — a036e6d
+- [x] 1.2 No Polish strings remain in reviewer.ts — a036e6d
 
 #### Manual
 
-- [x] 1.3 Diff shows message.result, maxBudgetUsd, English strings
+- [x] 1.3 Diff shows message.result, maxBudgetUsd, English strings — a036e6d
 
 ### Phase 2: Translate review-schema.ts and index.ts
 
 #### Automated
 
-- [ ] 2.1 No Polish strings remain in any source file
-- [ ] 2.2 No TypeScript errors introduced
+- [x] 2.1 No Polish strings remain in any source file
+- [x] 2.2 No TypeScript errors introduced
 
 #### Manual
 
