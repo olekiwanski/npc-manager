@@ -331,25 +331,25 @@ Well within the $1 budget. Six runs per dollar; ~$0.15 per full comparison.
 
 #### Automated
 
-- [x] 1.1 Existing CLI still works after model param change: `echo "diff" | npx tsx src/index.ts`
-- [x] 1.2 promptfoo binary resolves: `npm run eval --help` exits 0
+- [x] 1.1 Existing CLI still works after model param change: `echo "diff" | npx tsx src/index.ts` — d2c25e6
+- [x] 1.2 promptfoo binary resolves: `npm run eval --help` exits 0 — d2c25e6
 
 #### Manual
 
-- [x] 1.3 `node_modules/.bin/promptfoo` exists after install
+- [x] 1.3 `node_modules/.bin/promptfoo` exists after install — d2c25e6
 
 ### Phase 2: Build the Eval Suite
 
 #### Automated
 
-- [ ] 2.1 `promptfoo eval --config evals/promptfooconfig.yaml` exits 0
-- [ ] 2.2 Terminal shows 3-column comparison table with no red (error) rows
+- [x] 2.1 `promptfoo eval --config evals/promptfooconfig.yaml` exits 0
+- [x] 2.2 Terminal shows 3-column comparison table with no red (error) rows
 
 #### Manual
 
-- [ ] 2.3 `npm run eval:view` opens web UI with scores and summaries per model
-- [ ] 2.4 LLM judge marks rubric assertion green for at least one model
-- [ ] 2.5 Each model's `summary` field mentions identifiable bugs from the fixture
+- [x] 2.3 `npm run eval:view` opens web UI with scores and summaries per model
+- [x] 2.4 LLM judge marks rubric assertion green for at least one model
+- [x] 2.5 Each model's `summary` field mentions identifiable bugs from the fixture
 
 ### Phase 3: CI Workflow
 
