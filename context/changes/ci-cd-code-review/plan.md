@@ -406,22 +406,22 @@ trigger for first-run smoke testing. When `PR_NUMBER` is empty, Step C exits ear
 
 #### Automated
 
-- [x] 1.1 TypeScript compiles without errors (npx tsc --noEmit in package)
-- [x] 1.2 ESLint passes (npm run lint)
-- [x] 1.3 Tests pass (npm run test)
+- [x] 1.1 TypeScript compiles without errors (npx tsc --noEmit in package) — 27ed973
+- [x] 1.2 ESLint passes (npm run lint) — 27ed973
+- [x] 1.3 Tests pass (npm run test) — 27ed973
 
 #### Manual
 
-- [x] 1.4 `git diff HEAD~1 | npm run review` still works without env vars set
-- [x] 1.5 `PR_TITLE="Add auth" PR_BODY="test" git diff HEAD~1 | npm run review` produces valid JSON output
+- [x] 1.4 `git diff HEAD~1 | npm run review` still works without env vars set — 27ed973
+- [x] 1.5 `PR_TITLE="Add auth" PR_BODY="test" git diff HEAD~1 | npm run review` produces valid JSON output — 27ed973
 
 ### Phase 2: GitHub Actions — composite action and review workflow
 
 #### Automated
 
-- [ ] 2.1 YAML is valid (actionlint or manual inspection)
-- [ ] 2.2 ESLint passes (npm run lint)
-- [ ] 2.3 TypeScript compiles (npx tsc --noEmit in package)
+- [x] 2.1 YAML is valid (actionlint or manual inspection)
+- [x] 2.2 ESLint passes (npm run lint)
+- [x] 2.3 TypeScript compiles (npx tsc --noEmit in package)
 
 #### Manual
 
