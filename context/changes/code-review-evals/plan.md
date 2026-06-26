@@ -356,9 +356,9 @@ Well within the $1 budget. Six runs per dollar; ~$0.15 per full comparison.
 #### Automated
 
 - [x] 3.1 Workflow file is valid YAML (`yamllint .github/workflows/evals.yml`) — 8e29746
-- [ ] 3.2 Workflow appears in GitHub Actions UI under "Code Review Evals"
+- [x] 3.2 Workflow appears in GitHub Actions UI under "Code Review Evals"
 
 #### Manual
 
 - [x] 3.3 `ANTHROPIC_API_KEY` added as a repository secret before first trigger
-- [ ] 3.4 "Run workflow" button triggers successfully and logs show comparison table
+- [x] 3.4 "Run workflow" button triggers successfully and logs show comparison table

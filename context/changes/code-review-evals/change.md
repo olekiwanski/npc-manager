@@ -1,7 +1,7 @@
 ---
 change_id: code-review-evals
 title: Promptfoo eval suite for code reviewer model comparison
-status: implementing
+status: implemented
 created: 2026-06-26
 updated: 2026-06-26
 archived_at: null
