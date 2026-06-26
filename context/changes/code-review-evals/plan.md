@@ -342,20 +342,20 @@ Well within the $1 budget. Six runs per dollar; ~$0.15 per full comparison.
 
 #### Automated
 
-- [x] 2.1 `promptfoo eval --config evals/promptfooconfig.yaml` exits 0
-- [x] 2.2 Terminal shows 3-column comparison table with no red (error) rows
+- [x] 2.1 `promptfoo eval --config evals/promptfooconfig.yaml` exits 0 — e089282
+- [x] 2.2 Terminal shows 3-column comparison table with no red (error) rows — e089282
 
 #### Manual
 
-- [x] 2.3 `npm run eval:view` opens web UI with scores and summaries per model
-- [x] 2.4 LLM judge marks rubric assertion green for at least one model
-- [x] 2.5 Each model's `summary` field mentions identifiable bugs from the fixture
+- [x] 2.3 `npm run eval:view` opens web UI with scores and summaries per model — e089282
+- [x] 2.4 LLM judge marks rubric assertion green for at least one model — e089282
+- [x] 2.5 Each model's `summary` field mentions identifiable bugs from the fixture — e089282
 
 ### Phase 3: CI Workflow
 
 #### Automated
 
-- [ ] 3.1 Workflow file is valid YAML (`yamllint .github/workflows/evals.yml`)
+- [x] 3.1 Workflow file is valid YAML (`yamllint .github/workflows/evals.yml`)
 - [ ] 3.2 Workflow appears in GitHub Actions UI under "Code Review Evals"
 
 #### Manual
