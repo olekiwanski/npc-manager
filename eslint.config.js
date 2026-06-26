@@ -74,6 +74,7 @@ const astroConfig = tseslint.config({
 });
 
 export default tseslint.config(
+  { ignores: ["packages/**"] },
   includeIgnoreFile(gitignorePath),
   baseConfig,
   reactConfig,
