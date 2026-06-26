@@ -73,7 +73,8 @@ runs:
         PR_BODY: ${{ inputs.pr-body }}
       run: |
         set +e
-        npm run review --prefix=packages/code-reviewer < /tmp/pr.diff \
+        node packages/code-reviewer/node_modules/.bin/tsx \
+          packages/code-reviewer/src/index.ts < /tmp/pr.diff \
           > /tmp/review.json 2>/tmp/review.err
         REVIEW_EXIT=$?
         set -e
@@ -88,9 +89,19 @@ runs:
         PR_NUMBER: ${{ inputs.pr-number }}
       run: |
         if [ "${REVIEW_EXIT}" -ne 0 ]; then
-          ERROR_MSG=$(head -5 /tmp/review.err 2>/dev/null || echo "unknown error")
+          ERROR_MSG=$(grep -m1 "^Error:" /tmp/review.err 2>/dev/null || \
+                      head -1 /tmp/review.err 2>/dev/null || \
+                      echo "unknown error")
           gh pr comment "${PR_NUMBER}" --body \
             "<!-- ai-cr-review -->⚠️ AI code review could not complete: \`${ERROR_MSG}\`"
+          echo "verdict=pass" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if ! jq -e . /tmp/review.json > /dev/null 2>&1; then
+          ERROR_PREVIEW=$(head -3 /tmp/review.json 2>/dev/null || echo "(empty)")
+          gh pr comment "${PR_NUMBER}" --body \
+            "<!-- ai-cr-review -->⚠️ AI code review produced invalid output. First 3 lines of stdout: \`${ERROR_PREVIEW}\`"
           echo "verdict=pass" >> "$GITHUB_OUTPUT"
           exit 0
         fi
