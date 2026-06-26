@@ -273,7 +273,7 @@ Zamiana klas kolorystycznych w komponentach React — karty kampanii, listy NPC,
 
 #### Automated
 
-- [x] 1.1 Lint przechodzi: `npm run lint`
+- [x] 1.1 Lint przechodzi: `npm run lint` — f960173
 
 #### Manual
 
@@ -285,8 +285,8 @@ Zamiana klas kolorystycznych w komponentach React — karty kampanii, listy NPC,
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Build bez błędów: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Build bez błędów: `npm run build`
 
 #### Manual
 
