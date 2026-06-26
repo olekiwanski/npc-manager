@@ -1,7 +1,7 @@
 ---
 id: code-reviewer-cleanup
 title: Fix SDK API mismatch and translate strings in packages/code-reviewer
-status: implementing
+status: implemented
 updated: 2026-06-26
 ---
 

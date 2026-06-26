@@ -162,10 +162,10 @@ Zod field descriptions follow the pattern `"<Dimension>: <what it measures> (sca
 
 #### Automated
 
-- [x] 2.1 No Polish strings remain in any source file
-- [x] 2.2 No TypeScript errors introduced
+- [x] 2.1 No Polish strings remain in any source file — 5c6d03f
+- [x] 2.2 No TypeScript errors introduced — 5c6d03f
 
 #### Manual
 
-- [ ] 2.3 Live run produces valid JSON with English summary
-- [ ] 2.4 Stderr shows English cost log
+- [x] 2.3 Live run produces valid JSON with English summary — 5c6d03f
+- [x] 2.4 Stderr shows English cost log — 5c6d03f
