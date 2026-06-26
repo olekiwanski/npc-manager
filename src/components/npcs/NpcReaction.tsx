@@ -131,7 +131,7 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
         <Button
           type="submit"
           disabled={isStreaming || scenario.trim().length === 0}
-          className="rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500 disabled:opacity-50"
+          className="rounded-lg bg-amber-700 px-4 py-2 font-medium text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
         >
           {isStreaming ? (
             <span className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export function NpcReaction({ npcId }: NpcReactionProps) {
         </Button>
       </form>
       {reactionText && (
-        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm whitespace-pre-wrap text-blue-100/90">
+        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm whitespace-pre-wrap text-stone-300/90">
           {reactionText}
         </div>
       )}

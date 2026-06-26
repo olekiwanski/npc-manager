@@ -111,7 +111,7 @@
 }
 
 @utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
+  background-image: linear-gradient(to bottom, #1a1614, #251f1b, #1a1614);
 }
 
 @layer base {
@@ -120,5 +120,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  h1,
+  h2 {
+    font-family: "Cinzel", serif;
   }
 }

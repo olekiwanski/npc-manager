@@ -47,10 +47,10 @@ export function NpcList({ initialNpcs, campaignId }: NpcListProps) {
 
       {npcs.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-10 text-center">
-          <p className="mb-4 text-blue-100/70">{"This campaign doesn't have any NPCs yet."}</p>
+          <p className="mb-4 text-stone-300/70">{"This campaign doesn't have any NPCs yet."}</p>
           <a
             href={`/campaigns/${campaignId}/npcs/new`}
-            className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-500"
+            className="inline-flex items-center gap-2 rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium transition-colors hover:bg-amber-600"
           >
             <Plus className="size-4" />
             Create your first NPC

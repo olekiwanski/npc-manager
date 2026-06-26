@@ -106,7 +106,7 @@ export function NpcForm({ campaignId, npc }: NpcFormProps) {
       />
 
       <div>
-        <label htmlFor="traits" className="mb-1 block text-sm text-blue-100/80">
+        <label htmlFor="traits" className="mb-1 block text-sm text-stone-300/80">
           Traits
         </label>
         <textarea
@@ -121,13 +121,13 @@ export function NpcForm({ campaignId, npc }: NpcFormProps) {
           rows={5}
           className={cn(
             "w-full rounded-lg border bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:outline-none",
-            errors.traits ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+            errors.traits ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-amber-500",
           )}
         />
         {errors.traits ? (
           <p className="mt-1 text-xs text-red-300">{errors.traits}</p>
         ) : (
-          <p className="mt-1 text-xs text-blue-100/40">
+          <p className="mt-1 text-xs text-stone-300/40">
             {traits.length}/{TRAITS_MAX}
           </p>
         )}

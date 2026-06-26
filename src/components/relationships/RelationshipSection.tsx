@@ -118,7 +118,7 @@ export function RelationshipSection({
       {hasPartners ? (
         <form action={handleSubmit} className="mb-6 space-y-4" noValidate>
           <div>
-            <label htmlFor="partner" className="mb-1 block text-sm text-blue-100/80">
+            <label htmlFor="partner" className="mb-1 block text-sm text-stone-300/80">
               Linked NPC
             </label>
             <div className="relative">
@@ -135,7 +135,7 @@ export function RelationshipSection({
                 }}
                 className={cn(
                   "w-full appearance-none rounded-lg border bg-white/10 px-3 py-2 pl-10 text-white transition-colors focus:ring-2 focus:outline-none",
-                  errors.partnerId ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+                  errors.partnerId ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-amber-500",
                 )}
               >
                 {eligiblePartners.map((npc) => (
@@ -162,7 +162,7 @@ export function RelationshipSection({
           />
 
           <div>
-            <label htmlFor="description" className="mb-1 block text-sm text-blue-100/80">
+            <label htmlFor="description" className="mb-1 block text-sm text-stone-300/80">
               Description
             </label>
             <textarea
@@ -177,13 +177,13 @@ export function RelationshipSection({
               rows={3}
               className={cn(
                 "w-full rounded-lg border bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:outline-none",
-                errors.description ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+                errors.description ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-amber-500",
               )}
             />
             {errors.description ? (
               <p className="mt-1 text-xs text-red-300">{errors.description}</p>
             ) : (
-              <p className="mt-1 text-xs text-blue-100/40">
+              <p className="mt-1 text-xs text-stone-300/40">
                 {description.length}/{DESCRIPTION_MAX}
               </p>
             )}
@@ -196,7 +196,7 @@ export function RelationshipSection({
           </SubmitButton>
         </form>
       ) : (
-        <p className="mb-6 rounded-lg border border-dashed border-white/15 bg-white/5 px-3 py-2 text-sm text-blue-100/60">
+        <p className="mb-6 rounded-lg border border-dashed border-white/15 bg-white/5 px-3 py-2 text-sm text-stone-300/60">
           Add another NPC to this campaign to create relationships.
         </p>
       )}
@@ -208,7 +208,7 @@ export function RelationshipSection({
       ) : null}
 
       {relationships.length === 0 ? (
-        <p className="text-sm text-blue-100/40 italic">No relationships yet.</p>
+        <p className="text-sm text-stone-300/40 italic">No relationships yet.</p>
       ) : (
         <div className="space-y-3">
           {relationships.map((relationship) => (

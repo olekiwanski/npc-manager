@@ -44,7 +44,7 @@ export function RelationshipRow({ relationship, currentNpcId, partnerName, onDel
         <div className="flex min-w-0 flex-col gap-1">
           <div className="flex items-center gap-2">
             <span
-              className="flex items-center gap-1 text-xs font-medium text-blue-100/60"
+              className="flex items-center gap-1 text-xs font-medium text-stone-300/60"
               title={outgoing ? "Outgoing relationship" : "Incoming relationship"}
             >
               {outgoing ? <ArrowRight className="size-3.5" /> : <ArrowLeft className="size-3.5" />}
@@ -52,7 +52,7 @@ export function RelationshipRow({ relationship, currentNpcId, partnerName, onDel
             </span>
             <h3 className="truncate text-base font-semibold">{partnerName}</h3>
           </div>
-          <span className="w-fit rounded-full bg-purple-500/20 px-2 py-0.5 text-xs font-medium text-purple-200">
+          <span className="w-fit rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-200">
             {relationship.type}
           </span>
         </div>
@@ -72,8 +72,8 @@ export function RelationshipRow({ relationship, currentNpcId, partnerName, onDel
         </button>
       </div>
 
-      <p className="text-sm text-blue-100/70">
-        {relationship.description ?? <span className="text-blue-100/40 italic">No description</span>}
+      <p className="text-sm text-stone-300/70">
+        {relationship.description ?? <span className="text-stone-300/40 italic">No description</span>}
       </p>
     </div>
   );
