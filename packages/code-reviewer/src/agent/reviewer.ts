@@ -26,7 +26,7 @@ export async function reviewDiff(diff: string): Promise<Review> {
       return parsed.data;
     }
 
-    throw new Error(`Review failed (${message.subtype}): ${message.errors.join("; ")}`);
+    throw new Error(`Review failed (${message.subtype}): ${(message.errors ?? []).join("; ")}`);
   }
 
   throw new Error("Agent returned no result");
