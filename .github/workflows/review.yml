@@ -1,0 +1,53 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  review:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.action != 'labeled' ||
+      github.event.label.name == 'ai-cr:review'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Ensure review labels exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "ai-cr:passed"  --color "0e8a16" --description "AI review passed"  --force
+          gh label create "ai-cr:failed"  --color "e11d48" --description "AI review failed"  --force
+          gh label create "ai-cr:review"  --color "0075ca" --description "Request AI review" --force
+
+      - id: ai-review
+        uses: ./.github/actions/ai-review
+        with:
+          api-key:      ${{ secrets.ANTHROPIC_API_KEY }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number:    ${{ github.event.pull_request.number }}
+          pr-title:     ${{ github.event.pull_request.title }}
+          pr-body:      ${{ github.event.pull_request.body }}
+          base-ref:     ${{ github.base_ref }}
+
+      - name: Remove retry label
+        if: github.event.action == 'labeled' && github.event.label.name == 'ai-cr:review'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit "${{ github.event.pull_request.number }}" --remove-label "ai-cr:review"

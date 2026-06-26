@@ -13,4 +13,7 @@ if (!diff.trim()) {
   process.exit(1);
 }
 
-console.log(JSON.stringify(await reviewDiff(diff), null, 2));
+const prTitle = process.env.PR_TITLE ?? "";
+const prBody = process.env.PR_BODY ?? "";
+
+console.log(JSON.stringify(await reviewDiff(diff, { prTitle, prBody }), null, 2));

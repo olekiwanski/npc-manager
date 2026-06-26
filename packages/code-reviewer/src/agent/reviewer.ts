@@ -1,9 +1,17 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { SYSTEM_PROMPT, REVIEW_SCHEMA, REVIEW_JSON_SCHEMA, type Review } from "../common/review-schema.js";
 
-export async function reviewDiff(diff: string): Promise<Review> {
+export async function reviewDiff(
+  diff: string,
+  opts: { prTitle?: string; prBody?: string } = {}
+): Promise<Review> {
+  const contextParts: string[] = [];
+  if (opts.prTitle) contextParts.push(`PR Title: ${opts.prTitle}`);
+  if (opts.prBody) contextParts.push(`PR Description:\n${opts.prBody}`);
+  contextParts.push(`Diff:\n${diff}`);
+
   const result = query({
-    prompt: `Review this diff:\n\n${diff}`,
+    prompt: `Review this pull request:\n\n${contextParts.join("\n\n")}`,
     options: {
       systemPrompt: SYSTEM_PROMPT,
       model: "claude-sonnet-4-6",

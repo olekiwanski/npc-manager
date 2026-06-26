@@ -1,0 +1,152 @@
+name: AI Code Review
+description: Run the code-reviewer agent on a PR diff and post a scored comment
+
+inputs:
+  api-key:
+    description: ANTHROPIC_API_KEY
+    required: true
+  github-token:
+    description: GITHUB_TOKEN for gh CLI
+    required: true
+  pr-number:
+    description: PR number (github.event.pull_request.number)
+    required: true
+  pr-title:
+    description: PR title (github.event.pull_request.title)
+    required: true
+  pr-body:
+    description: PR description (github.event.pull_request.body)
+    required: false
+  base-ref:
+    description: Target branch (github.base_ref)
+    required: true
+
+outputs:
+  verdict:
+    description: '"pass" or "fail"'
+    value: ${{ steps.review.outputs.verdict || steps.skip-verdict.outputs.verdict }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install package deps
+      shell: bash
+      run: npm ci --prefix=packages/code-reviewer
+
+    - name: Compute filtered diff
+      shell: bash
+      env:
+        BASE_REF: ${{ inputs.base-ref }}
+      run: |
+        git diff "origin/${BASE_REF}...HEAD" \
+          -- \
+          ':(exclude)package-lock.json' \
+          ':(exclude)yarn.lock' \
+          ':(exclude)pnpm-lock.yaml' \
+          ':(exclude)*.lock' \
+          ':(exclude)dist/**' \
+          ':(exclude).wrangler/**' > /tmp/pr.diff
+
+    - name: Guard — empty diff
+      id: guard
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      run: |
+        if [ ! -s /tmp/pr.diff ]; then
+          if [ -n "${PR_NUMBER}" ]; then
+            gh pr comment "${PR_NUMBER}" --body \
+              "<!-- ai-cr-review -->🤖 No meaningful code changes detected after filtering generated files. Skipping review."
+          fi
+          echo "skip=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run agent
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.api-key }}
+        PR_TITLE: ${{ inputs.pr-title }}
+        PR_BODY: ${{ inputs.pr-body }}
+      run: |
+        set +e
+        npm run review --prefix=packages/code-reviewer < /tmp/pr.diff \
+          > /tmp/review.json 2>/tmp/review.err
+        REVIEW_EXIT=$?
+        set -e
+        echo "REVIEW_EXIT=${REVIEW_EXIT}" >> "$GITHUB_ENV"
+
+    - name: Process review result
+      id: review
+      if: steps.guard.outputs.skip != 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      run: |
+        if [ "${REVIEW_EXIT}" -ne 0 ]; then
+          ERROR_MSG=$(head -5 /tmp/review.err 2>/dev/null || echo "unknown error")
+          gh pr comment "${PR_NUMBER}" --body \
+            "<!-- ai-cr-review -->⚠️ AI code review could not complete: \`${ERROR_MSG}\`"
+          echo "verdict=pass" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        VERDICT=$(jq -r '.verdict' /tmp/review.json)
+        SUMMARY=$(jq -r '.summary' /tmp/review.json)
+        IMPL=$(jq -r '.implementationCorrectness' /tmp/review.json)
+        IDIO=$(jq -r '.idiomaticity' /tmp/review.json)
+        COMP=$(jq -r '.complexity' /tmp/review.json)
+        TEST=$(jq -r '.testRiskCoverage' /tmp/review.json)
+        SEC=$(jq -r '.securitySafety' /tmp/review.json)
+
+        VERDICT_ICON="✅ PASSED"
+        [ "$VERDICT" = "fail" ] && VERDICT_ICON="❌ FAILED"
+
+        MARKER="<!-- ai-cr-review -->"
+
+        OLD_ID=$(gh api "repos/{owner}/{repo}/issues/${PR_NUMBER}/comments" \
+          --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+        [ -n "$OLD_ID" ] && gh api --method DELETE "repos/{owner}/{repo}/issues/comments/${OLD_ID}"
+
+        printf '%s\n' \
+          "${MARKER}" \
+          "## 🤖 AI Code Review — ${VERDICT_ICON}" \
+          "" \
+          "| Criterion | Score |" \
+          "|---|---|" \
+          "| Implementation Correctness | ${IMPL}/10 |" \
+          "| Idiomaticity | ${IDIO}/10 |" \
+          "| Complexity | ${COMP}/10 |" \
+          "| Test / Risk Coverage | ${TEST}/10 |" \
+          "| Security & Safety | ${SEC}/10 |" \
+          "" \
+          "### Summary" \
+          "" \
+          "${SUMMARY}" \
+          "" \
+          "---" \
+          "*Re-run by adding the \`ai-cr:review\` label*" \
+          > /tmp/comment.md
+
+        gh pr comment "${PR_NUMBER}" --body-file /tmp/comment.md
+
+        gh pr edit "${PR_NUMBER}" --remove-label "ai-cr:passed" 2>/dev/null || true
+        gh pr edit "${PR_NUMBER}" --remove-label "ai-cr:failed" 2>/dev/null || true
+
+        if [ "$VERDICT" = "pass" ]; then
+          gh pr edit "${PR_NUMBER}" --add-label "ai-cr:passed"
+        else
+          gh pr edit "${PR_NUMBER}" --add-label "ai-cr:failed"
+        fi
+
+        echo "verdict=${VERDICT}" >> "$GITHUB_OUTPUT"
+
+    - name: Set pass verdict for skipped review
+      id: skip-verdict
+      if: steps.guard.outputs.skip == 'true'
+      shell: bash
+      run: echo "verdict=pass" >> "$GITHUB_OUTPUT"
