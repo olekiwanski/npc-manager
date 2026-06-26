@@ -87,7 +87,7 @@ export function CampaignForm({ campaign }: CampaignFormProps) {
       />
 
       <div>
-        <label htmlFor="description" className="mb-1 block text-sm text-blue-100/80">
+        <label htmlFor="description" className="mb-1 block text-sm text-stone-300/80">
           Description
         </label>
         <textarea
@@ -102,13 +102,13 @@ export function CampaignForm({ campaign }: CampaignFormProps) {
           rows={4}
           className={cn(
             "w-full rounded-lg border bg-white/10 px-3 py-2 text-white placeholder-white/40 transition-colors focus:ring-2 focus:outline-none",
-            errors.description ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+            errors.description ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-amber-500",
           )}
         />
         {errors.description ? (
           <p className="mt-1 text-xs text-red-300">{errors.description}</p>
         ) : (
-          <p className="mt-1 text-xs text-blue-100/40">
+          <p className="mt-1 text-xs text-stone-300/40">
             {description.length}/{DESCRIPTION_MAX}
           </p>
         )}
@@ -116,7 +116,7 @@ export function CampaignForm({ campaign }: CampaignFormProps) {
 
       {isEdit ? (
         <div>
-          <label htmlFor="status" className="mb-1 block text-sm text-blue-100/80">
+          <label htmlFor="status" className="mb-1 block text-sm text-stone-300/80">
             Status
           </label>
           <select
@@ -126,7 +126,7 @@ export function CampaignForm({ campaign }: CampaignFormProps) {
             onChange={(e) => {
               setStatus(e.target.value as "active" | "archived");
             }}
-            className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
+            className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
           >
             <option value="active">Active</option>
             <option value="archived">Archived</option>

@@ -38,22 +38,22 @@ export function NpcCard({ npc, campaignId, onDelete }: NpcCardProps) {
     <div className="flex flex-col rounded-2xl border border-white/10 bg-white/10 p-5 text-white backdrop-blur-xl">
       <div className="mb-2 flex items-start justify-between gap-2">
         <h3 className="text-lg font-semibold break-words">
-          <a href={`/campaigns/${campaignId}/npcs/${npc.id}`} className="transition-colors hover:text-purple-200">
+          <a href={`/campaigns/${campaignId}/npcs/${npc.id}`} className="transition-colors hover:text-amber-200">
             {npc.name}
           </a>
         </h3>
         <span
           className={cn(
             "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
-            npc.role ? "bg-purple-500/20 text-purple-200" : "bg-white/10 text-blue-100/60",
+            npc.role ? "bg-amber-500/20 text-amber-200" : "bg-white/10 text-stone-300/60",
           )}
         >
           {npc.role ?? "No role"}
         </span>
       </div>
 
-      <p className="mb-4 line-clamp-3 min-h-[1.25rem] text-sm text-blue-100/70">
-        {npc.traits ?? <span className="text-blue-100/40 italic">No traits</span>}
+      <p className="mb-4 line-clamp-3 min-h-[1.25rem] text-sm text-stone-300/70">
+        {npc.traits ?? <span className="text-stone-300/40 italic">No traits</span>}
       </p>
 
       <div className="mt-auto flex items-center gap-2">

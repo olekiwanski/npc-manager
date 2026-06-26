@@ -34,7 +34,7 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
+      <label htmlFor={id} className="mb-1 block text-sm text-stone-300/80">
         {label}
       </label>
       <div className="relative">
@@ -50,7 +50,7 @@ export function FormField({
           placeholder={placeholder}
           className={cn(
             inputBase,
-            error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
+            error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-amber-500",
           )}
         />
         {endContent}

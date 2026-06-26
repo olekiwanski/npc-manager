@@ -97,7 +97,7 @@ export function CampaignList({ initialCampaigns }: CampaignListProps) {
             }}
             className={cn(
               "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
-              showArchived === tab.archived ? "bg-purple-600 text-white" : "text-blue-100/70 hover:text-white",
+              showArchived === tab.archived ? "bg-amber-700 text-white" : "text-stone-300/70 hover:text-white",
             )}
           >
             {tab.label}
@@ -112,16 +112,16 @@ export function CampaignList({ initialCampaigns }: CampaignListProps) {
       ) : null}
 
       {isLoading ? (
-        <p className="text-blue-100/60">Loading…</p>
+        <p className="text-stone-300/60">Loading…</p>
       ) : campaigns.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-10 text-center">
-          <p className="mb-4 text-blue-100/70">
+          <p className="mb-4 text-stone-300/70">
             {showArchived ? "No archived campaigns." : "You don't have any campaigns yet."}
           </p>
           {!showArchived ? (
             <a
               href="/campaigns/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-purple-500"
+              className="inline-flex items-center gap-2 rounded-lg bg-amber-700 px-4 py-2 text-sm font-medium transition-colors hover:bg-amber-600"
             >
               <Plus className="size-4" />
               Create your first campaign
