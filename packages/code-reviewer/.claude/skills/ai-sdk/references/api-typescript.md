@@ -103,19 +103,24 @@ type SettingSource = "user" | "project" | "local";
 }
 ```
 
-### `SDKResultMessage` (error/interrupted)
+### `SDKResultMessage` (error)
 
 ```typescript
 {
   type: "result";
-  subtype: "error" | "interrupted" | "limit_exceeded" | "no_response";
+  subtype: "error_during_execution" | "error_max_turns" | "error_max_budget_usd" | "error_max_structured_output_retries";
   uuid: string;
   session_id: string;
   duration_ms: number;
-  result: string;
-  error?: SDKResultError;
+  duration_api_ms: number;
+  is_error: boolean;
+  num_turns: number;
+  total_cost_usd: number;
+  errors: string[];   // use errors.join("; ") for the error message
 }
 ```
+
+> Source: actual `sdk.d.ts` types in v0.3.193. The online docs show different field names — trust the installed types.
 
 ### `SDKAssistantMessage`
 

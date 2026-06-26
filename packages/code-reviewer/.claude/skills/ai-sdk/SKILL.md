@@ -18,7 +18,7 @@ for await (const message of query({ prompt, options })) {
   if (message.subtype === "success") {
     // handle result
   } else {
-    // subtype: "error" | "interrupted" | "limit_exceeded" | "no_response"
+    // subtype: "error_during_execution" | "error_max_turns" | "error_max_budget_usd" | "error_max_structured_output_retries"
   }
 }
 ```
@@ -47,7 +47,7 @@ for await (const message of result) {
     console.error(`[info] cost: $${message.total_cost_usd.toFixed(6)} | turns: ${message.num_turns}`);
     return parsed.data;
   }
-  throw new Error(`Review failed (${message.subtype}): ${message.result}`);
+  throw new Error(`Review failed (${message.subtype}): ${message.errors.join("; ")}`);
 }
 ```
 
