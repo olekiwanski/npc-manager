@@ -419,14 +419,14 @@ trigger for first-run smoke testing. When `PR_NUMBER` is empty, Step C exits ear
 
 #### Automated
 
-- [x] 2.1 YAML is valid (actionlint or manual inspection)
-- [x] 2.2 ESLint passes (npm run lint)
-- [x] 2.3 TypeScript compiles (npx tsc --noEmit in package)
+- [x] 2.1 YAML is valid (actionlint or manual inspection) — 6272fb2
+- [x] 2.2 ESLint passes (npm run lint) — 6272fb2
+- [x] 2.3 TypeScript compiles (npx tsc --noEmit in package) — 6272fb2
 
 #### Manual
 
-- [ ] 2.4 PR to master triggers review workflow — comment appears with scorecard table
-- [ ] 2.5 Correct label applied (ai-cr:passed green or ai-cr:failed red), never both
-- [ ] 2.6 Adding ai-cr:review label re-triggers review and removes itself after run
-- [ ] 2.7 New push to PR replaces existing comment (not appends)
-- [ ] 2.8 Workflow check stays green regardless of verdict
+- [x] 2.4 PR to master triggers review workflow — comment appears with scorecard table — 7c98617
+- [x] 2.5 Correct label applied (ai-cr:passed green or ai-cr:failed red), never both — 7c98617
+- [x] 2.6 Adding ai-cr:review label re-triggers review and removes itself after run — 7c98617
+- [x] 2.7 New push to PR replaces existing comment (not appends) — 7c98617
+- [x] 2.8 Workflow check stays green regardless of verdict — 7c98617
