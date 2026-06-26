@@ -172,18 +172,18 @@ Przy pracy przez `tsx` (bez kompilacji) to wystarczy. Jeśli w przyszłości doj
 
 #### Automated
 
-- [x] 2.1 `echo "test diff" | npx tsx src/index.ts` kończy się bez błędu importu
+- [x] 2.1 `echo "test diff" | npx tsx src/index.ts` kończy się bez błędu importu — 0ed3aae
 
 #### Manual
 
-- [x] 2.2 `git diff | npx tsx src/index.ts` zwraca poprawny JSON
+- [x] 2.2 `git diff | npx tsx src/index.ts` zwraca poprawny JSON — 0ed3aae
 
 ### Phase 3: Zaktualizuj package.json
 
 #### Automated
 
-- [ ] 3.1 Pole exports widoczne w package.json
+- [x] 3.1 Pole exports widoczne w package.json
 
 #### Manual
 
-- [ ] 3.2 Import po nazwie paczki nie rzuca ERR_PACKAGE_PATH_NOT_EXPORTED
+- [x] 3.2 Import po nazwie paczki nie rzuca ERR_PACKAGE_PATH_NOT_EXPORTED

@@ -2,6 +2,9 @@
   "name": "@10xdevs/code-reviewer",
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    ".": "./src/agent/reviewer.ts"
+  },
   "scripts": {
     "review": "tsx src/index.ts"
   },
