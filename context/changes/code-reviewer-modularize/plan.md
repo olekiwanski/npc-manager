@@ -161,22 +161,22 @@ Przy pracy przez `tsx` (bez kompilacji) to wystarczy. Jeśli w przyszłości doj
 
 #### Automated
 
-- [x] 1.1 Plik packages/code-reviewer/src/agent/reviewer.ts istnieje
-- [x] 1.2 Brak błędów TypeScript przy importowaniu modułu przez tsx
+- [x] 1.1 Plik packages/code-reviewer/src/agent/reviewer.ts istnieje — 8e60fac
+- [x] 1.2 Brak błędów TypeScript przy importowaniu modułu przez tsx — 8e60fac
 
 #### Manual
 
-- [x] 1.3 Bezpośredni import reviewDiff nie rzuca błędu modułu
+- [x] 1.3 Bezpośredni import reviewDiff nie rzuca błędu modułu — 8e60fac
 
 ### Phase 2: Odchudź src/index.ts
 
 #### Automated
 
-- [ ] 2.1 `echo "test diff" | npx tsx src/index.ts` kończy się bez błędu importu
+- [x] 2.1 `echo "test diff" | npx tsx src/index.ts` kończy się bez błędu importu
 
 #### Manual
 
-- [ ] 2.2 `git diff | npx tsx src/index.ts` zwraca poprawny JSON
+- [x] 2.2 `git diff | npx tsx src/index.ts` zwraca poprawny JSON
 
 ### Phase 3: Zaktualizuj package.json
 
