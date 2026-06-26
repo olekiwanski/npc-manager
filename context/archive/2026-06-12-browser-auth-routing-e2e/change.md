@@ -1,10 +1,10 @@
 ---
 change_id: browser-auth-routing-e2e
 title: E2E tests for browser auth redirect and sign-in flow (Phase 4)
-status: implemented
+status: archived
 created: 2026-06-12
-updated: 2026-06-12
-archived_at: null
+updated: 2026-06-26
+archived_at: 2026-06-26T10:45:00Z
 ---
 
 ## Notes
