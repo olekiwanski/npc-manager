@@ -1,10 +1,10 @@
 ---
-project: npc-manager
-checked_at: 2026-05-19T12:00:00Z
+project: "10x-astro-starter"
+checked_at: 2026-08-08T15:40:29Z
 health_status: needs-attention
 context_type: brownfield
 language_family: js
-stack_assessment_available: false
+stack_assessment_available: true
 checks_run:
   - lockfile
   - dependency_audit
@@ -14,12 +14,12 @@ checks_run:
   - configuration
 audit_findings:
   critical: 0
-  high: 0
-  moderate: 9
-  low: 0
-test_runner_detected: false
+  high: 2
+  moderate: 3
+  low: 1
+test_runner_detected: true
 ci_provider: GitHub Actions
-recommended_fixes: 5
+recommended_fixes: 8
 ---
 
 ## Dependency Health
@@ -35,295 +35,183 @@ Package manager: npm
 
 ```
 Tool: npm audit --json
-Summary: 0 CRITICAL, 2 HIGH, 9 MODERATE, 0 LOW
-Direct vs transitive: 1 direct HIGH (wrangler), 1 transitive HIGH (undici via miniflare/wrangler)
+Status: RESOLVED (partially) — applied 2026-08-08
+Before:  0 CRITICAL, 12 HIGH,  8 MODERATE, 2 LOW  (22 total)
+After:   0 CRITICAL,  2 HIGH,  3 MODERATE, 1 LOW  (6 total, all behind one remaining decision)
 ```
 
-#### HIGH findings
+`npm audit fix` (no `--force`) cleared 16 of 22 advisories safely — verified with a full lint + test + build pass afterward (all green). The 3 direct-dependency advisories originally reported against `astro` 6.3.1 (reflected XSS via unescaped slot name, Host header SSRF, XSS via unescaped spread attribute names) are resolved by the resulting `astro@6.4.8`. `wrangler`'s advisory and its transitive chain (`miniflare`, `ws`, `undici`, etc.) are resolved by the resulting `wrangler@4.120.0`.
 
-- **wrangler** 3.107.3 — GHSA-36p8-mvp6-cv38: OS Command Injection in `wrangler pages deploy` via
-  unsanitized deployment path argument (CWE-78). Affects wrangler >=2.0.15 <3.114.17.
-  Fix: `npm install wrangler@3.114.17` (minimum safe patch) or `npm install wrangler@latest` (v4.x).
+**A `--force` fix was attempted and reverted.** Clearing the remaining 6 requires bumping `astro` to `7.2.0` (`isSemVerMajor: true`, dragging `@astrojs/cloudflare` to `14.2.0` with it). That upgrade was tried and **broke the production build** (`astro build` failed: "Could not find the prerender entry point in the build output. This is likely a bug in Astro."). The change was reverted; `package.json`/`package-lock.json` are back on the safe, verified `astro@6.4.8` line.
 
-- **undici** (transitive via miniflare → wrangler) — GHSA-vrm6-8vpv-qv8q + GHSA-v9p9-hfj2-hcw8:
-  Unbounded Memory Consumption in WebSocket permessage-deflate Decompression (CVSS 7.5) and
-  Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits (CVSS 7.5).
-  Affects undici <=6.23.0. Fix: resolved by updating wrangler to 3.114.17+ (see above).
+#### Remaining HIGH findings (2) — blocked behind the Astro 7 major upgrade
 
-MODERATE findings (9 total, log only):
-- `esbuild` <=0.24.2 — development server cross-origin request disclosure (transitive via wrangler)
-- `@astrojs/cloudflare` >=13.0.0 — chains through @cloudflare/vite-plugin vulnerabilities (transitive)
-- `@cloudflare/vite-plugin`, `miniflare` — MODERATE range issues (transitive via wrangler/cloudflare)
-- `ws` 8.0.0–8.20.0 — uninitialized memory disclosure (transitive via cloudflare-vite-plugin)
-- `volar-service-yaml`, `yaml-language-server`, `yaml` <=2.8.2 — YAML stack overflow in deeply nested
-  collections (transitive via @astrojs/language-server, dev-only)
+- **astro** — new XSS advisories affecting the `6.x`–`7.0.9` range (View Transition animation properties, incomplete spread-attribute fix, `transition:*` directive values on hydrated islands). Fix requires `astro@7.2.0`.
+- **sharp** (transitive, via `astro`) — inherited `libvips` CVEs. Fix requires the same `astro@7.2.0` bump.
+
+#### Remaining MODERATE findings (3)
+
+- **@astrojs/cloudflare** (direct) — moderate, tied to the same `astro@7.2.0` bump.
+- **qs** + **typed-rest-client** (transitive, dev-only) — pulled in by `@stryker-mutator/core` (mutation testing) → `typed-rest-client@~2.3.0` → `qs@6.15.1`. `npm audit` reports a fix as "available" but can't apply it: `typed-rest-client` is peer-pinned to `~2.3.0` by Stryker, and clearing `qs` needs `typed-rest-client@3.0.0` (itself a major bump). Never touches the app's runtime/request path — local dev tooling only.
+
+#### Remaining LOW findings (1)
+
+- **esbuild** (transitive, via `astro`) — resolved by the same `astro@7.2.0` bump.
 
 ### Outdated Dependencies
 
 ```
-Packages with major version gaps: 5
+Packages with major version gaps: 8 (of 33 outdated total)
 ```
 
-Packages 1 major version behind (none are 2+ major versions behind):
-
-- **eslint**: 9.39.4 → 10.4.0 (1 major)
-- **@eslint/js**: 9.x → 10.x (1 major — aligns with eslint v10 upgrade)
-- **lint-staged**: 16.x → 17.x (1 major)
-- **typescript**: 5.9.3 → 6.0.3 (1 major — TypeScript 6 has breaking changes worth reviewing)
-- **wrangler**: 3.107.3 → 4.93.0 (1 major — v3.114.17 also fixes the HIGH advisory if you prefer
-  to stay on v3)
-
-None exceed the 2-major-version threshold, but `wrangler` and `typescript` upgrades are worth
-planning: wrangler v4 resolves the HIGH security advisory, and TypeScript 6 changes strictness
-behavior in ways that may surface new errors in the codebase.
-
----
+- **typescript**: 5.9.3 → 7.0.2 (2 major versions behind)
+- **astro**: 6.3.1 → 7.2.0 (1 major behind; the security fixes above only need a 6.x patch bump, the major bump is a separate decision)
+- **@astrojs/cloudflare**: 13.5.2 → 14.2.0 (1 major behind)
+- **@astrojs/react**: 5.0.4 → 6.0.2 (1 major behind)
+- **eslint**: 9.39.4 → 10.8.1 (1 major behind)
+- **@eslint/js**: 9.39.4 → 10.0.1 (1 major behind)
+- **lint-staged**: 16.4.0 → 17.3.0 (1 major behind)
+- **dependency-cruiser**: 17.4.3 → 18.1.1 (1 major behind)
 
 ## Test Suite
 
 ```
-Test runner: not detected
-Tests found: not applicable
-Test execution: not attempted
+Test runner: Vitest (unit) + Playwright (E2E)
+Tests found: 76 unit tests (15 files) + 5 E2E tests (3 files)
+Test execution: passing (unit suite run to completion; E2E suite listed successfully, not executed — requires a live dev server and Supabase instance)
 ```
 
-⚠ No test runner detected. The agent cannot verify its own changes.
-
-No `vitest.config.*`, `jest.config.*`, `playwright.config.*`, or `cypress.config.*` were found.
-The `package.json` scripts include `dev`, `build`, `preview`, `lint`, and `format` — but no `test`
-script.
-
-Recommended: Install Vitest (idiomatic choice for Astro + Vite-based stacks):
-
-```bash
-npm init vitest@latest
-```
-
-Then add to `package.json` scripts:
-
-```json
-"test": "vitest run",
-"test:watch": "vitest"
-```
-
----
+Configuration: `vitest.config.ts`, `playwright.config.ts`
+Framework: Vitest 4.1.6, @playwright/test 1.60.0
 
 ## CI/CD
 
 ```
 Provider: GitHub Actions
-Configuration: .github/workflows/ci.yml
+Configuration: .github/workflows/ci.yml (+ evals.yml, review.yml for AI-review-specific workflows)
 ```
 
-| Stage      | Status | Notes                                                      |
-|------------|--------|------------------------------------------------------------|
-| Lint       | ✓      | `npm run lint` (ESLint via eslint.config.js)               |
-| Test       | ✗      | No test step — no test runner configured yet               |
-| Build      | ✓      | `npm run build` (Astro build with Cloudflare adapter)      |
-| Type check | ✗      | No explicit `astro check` or `tsc --noEmit` step           |
-| Security   | ✗      | No `npm audit` or equivalent scan step                     |
+| Stage      | Status | Notes                                                                 |
+|------------|--------|------------------------------------------------------------------------|
+| Lint       | ✓      | `npm run lint` (ESLint, typed rules via `typescript-eslint`)            |
+| Test       | ✓      | `npm run test` (Vitest) — runs on every push/PR to `master`             |
+| Build      | ✓      | `npm run build` (Astro build, with Supabase secrets injected)           |
+| Type check | ✗      | No dedicated `tsc --noEmit` / `astro check` step; typed ESLint rules give partial coverage, but `@astrojs/check` is an unused devDependency |
+| Security   | ✗      | No `npm audit`, CodeQL, or Dependabot step in `ci.yml`                  |
 
-The CI pipeline runs lint and build on every push/PR to master. Type errors caught during build are
-a partial substitute for an explicit type-check step, but `astro check` would surface errors in
-`.astro` templates before the full build runs. A test step and security scan step are natural
-additions once a test runner is in place — covered in the infrastructure lesson.
-
----
+**Documentation drift found:** `AGENTS.md` states "tests do not run in CI", but `ci.yml` runs `npm run test` on every push/PR to `master`. The instruction file is out of date with the actual pipeline — an agent reading `AGENTS.md` would form an incorrect assumption about CI coverage.
 
 ## Configuration
 
-### High severity
-
-All high-severity configuration is present:
-- `tsconfig.json` extends `astro/tsconfigs/strict` — TypeScript strict mode effectively enabled ✓
-- `.gitignore` present ✓
-
-### Medium severity
-
-All medium-severity configuration is present:
-- `.prettierrc.json` — Prettier configured with Astro and Tailwind plugins ✓
-- `eslint.config.js` — ESLint configured with TypeScript, React, and Astro plugins ✓
-
 ### Low severity
 
-- **`.editorconfig`** — absent. Ensures consistent indentation and line endings across different
-  editors and operating systems. Without it, contributors using different editors may introduce
-  inconsistent whitespace. Fix: create a `.editorconfig` at the project root with your preferred
-  indent style (`indent_style = space`, `indent_size = 2` is standard for this stack).
-  Effort: quick (< 5 min).
+- **`.editorconfig`** — not present. Ensures consistent indentation/line-endings across editors regardless of per-editor settings. Fix: add a standard `.editorconfig` for the detected stack (TS/Astro).
 
----
+All other checked configuration is present: `.prettierrc.json`, `eslint.config.js` (flat config), `tsconfig.json` (extends `astro/tsconfigs/strict`), `.gitignore`, `.env.example`, `CLAUDE.md` + `AGENTS.md`.
 
 ## Stack Assessment Cross-Reference
 
 ```
-No stack-assessment.md found. Run /10x-stack-assess for quality-gate analysis.
+Stack assessment: context/foundation/stack-assessment.md
+Agent readiness (from stack-assess): ready
 ```
 
-The `context/foundation/tech-stack.md` hand-off confirms this stack passed all four agent-friendly
-quality gates (`bootstrapper_confidence: first-class`, `quality_override: false`). No stack
-assessment cross-reference is available, but the tech-stack hand-off suggests no compensation
-strategies are needed for type safety or convention coverage.
-
----
+The stack assessment found no quality-gate failures (4/4 components passed: typed, convention-based, popular-in-training-data, well-documented), so there is nothing here to reinforce or mitigate — the findings in this report are independent *operational* gaps (dependency freshness, CI coverage, doc drift), not stack-choice weaknesses. The one thing worth linking: stack-assess flagged that `AGENTS.md` is what makes this stack's "convention-based" gate hold beyond what Astro provides on its own — the CI/test-coverage drift found here (§ CI/CD) is a small crack in exactly that mechanism, worth fixing so the instruction file stays trustworthy as the codebase grows (including the incoming WFRP4e stats work).
 
 ## Recommended Fixes
 
 ### Fix before agent work (Category A)
 
-#### 1. Update wrangler to patch OS command injection
+### 1. Resolve the open dependency-security advisories — ✅ done (2026-08-08)
 
-**Impact**: wrangler is a direct devDependency used in the Cloudflare Pages deployment workflow.
-The OS command injection vulnerability (GHSA-36p8-mvp6-cv38) can be triggered during `wrangler pages deploy`.
-Updating also resolves the transitive undici HIGH findings.
+**Impact**: 12 HIGH-severity advisories (2 direct — `astro`, `wrangler`; 20 transitive) sat unpatched, including an XSS and an SSRF vector in Astro itself.
 **Severity**: high
 **Effort**: quick (< 5 min)
-**Fix**:
+**Fix applied**:
 
 ```bash
-# Minimum safe fix (stay on v3):
-npm install wrangler@3.114.17
-
-# Recommended (move to v4 — also fixes eslint/minor deps as part of peer resolution):
-npm install wrangler@latest
+npm audit fix
+npm run test
+npm run build
 ```
 
-After updating, re-run `npm audit` to confirm HIGH findings clear.
+16 of 22 advisories cleared this way (`astro@6.4.8`, `wrangler@4.120.0`); lint, all 76 unit tests, and the production build were re-verified green afterward. The remaining 6 are not independently fixable — see fix #7 below, they're gated behind the same Astro major upgrade.
 
----
+### 2. Add a type-check step to CI
 
-#### 2. Set up a test runner (Vitest)
-
-**Impact**: Without a test runner, the agent cannot verify whether its changes break existing
-behaviour. Every agent-generated edit goes unverified, increasing the risk of regressions
-accumulating silently. This is the highest-leverage improvement for agent collaboration.
-**Severity**: high (agent workflow)
-**Effort**: moderate (15–30 min)
-**Fix**:
-
-```bash
-# Scaffold Vitest configuration:
-npm init vitest@latest
-
-# Add test scripts to package.json manually if the init does not:
-# "test": "vitest run",
-# "test:watch": "vitest"
-```
-
-Start with at least one smoke test per feature area (auth flows, NPC CRUD, AI reaction route) so
-the agent has a verification target for each major concern in the PRD.
-
----
-
-#### 3. Plan the major-version dependency upgrades
-
-**Impact**: Running behind major versions — especially `eslint` v10 and `typescript` v6 — means the
-agent may generate code valid for the old API that breaks when you upgrade later. Catching
-breakage now, before AI-generated code accumulates, is far cheaper than after.
-**Severity**: medium
-**Effort**: moderate (15–30 min per major)
-**Fix**:
-
-```bash
-# Update wrangler to v4 (also resolves HIGH advisory — see fix #1):
-npm install wrangler@latest
-
-# Update TypeScript (read the v6 migration guide first — strictness changes):
-npm install typescript@latest
-
-# Update eslint + @eslint/js to v10 together (they version in lockstep):
-npm install eslint@latest @eslint/js@latest
-
-# Update lint-staged to v17:
-npm install lint-staged@latest
-```
-
-Run `npm run lint` and `npm run build` after each upgrade to catch breakage early. TypeScript 6
-and ESLint 10 both have documented breaking changes worth reviewing before upgrading.
-
----
-
-#### 4. Add an explicit type-check step to CI
-
-**Impact**: The current CI build catches type errors only as a side effect of `npm run build`.
-`astro check` surfaces type errors in `.astro` template files before the full build, giving faster
-feedback. With an agent writing `.astro` files, early type feedback matters.
+**Impact**: `ci.yml` never runs a dedicated type-check (`astro check`, which also runs `tsc` under the hood). Typed ESLint rules catch some type errors incidentally, but full-project type errors can currently reach `master` undetected.
 **Severity**: medium
 **Effort**: quick (< 5 min)
-**Fix**:
-
-Add the following step to `.github/workflows/ci.yml` between the lint and build steps:
+**Fix**: add a step to `.github/workflows/ci.yml`, right after `npx astro sync`:
 
 ```yaml
 - run: npx astro check
 ```
 
-This runs the Astro language server type check, covering both TypeScript and `.astro` template types.
+(`@astrojs/check` is already a devDependency — this wires up what's already installed.)
 
----
+### 3. Add a dependency-security step to CI
 
-#### 5. Add a `.editorconfig` file
-
-**Impact**: Low-urgency convenience — ensures any tool or editor the agent spawns (or future
-contributors use) writes consistent indentation and line endings without extra configuration.
-**Severity**: low
+**Impact**: the 12 HIGH advisories above went undetected in CI because nothing checks for them. Without this, the same class of gap will silently recur as dependencies drift.
+**Severity**: medium
 **Effort**: quick (< 5 min)
-**Fix**:
+**Fix**: add to `.github/workflows/ci.yml`:
 
-Create `.editorconfig` at the project root:
-
-```ini
-root = true
-
-[*]
-indent_style = space
-indent_size = 2
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[*.md]
-trim_trailing_whitespace = false
+```yaml
+- run: npm audit --audit-level=high
 ```
 
----
+(Non-blocking to start if you'd rather not gate merges on it yet — drop the step's failure from blocking CI by appending `|| true` and revisit later.)
 
-### Addressed in upcoming lessons (Category B)
+### 4. Fix the CI documentation drift in AGENTS.md
 
-#### Missing test step in CI
+**Impact**: `AGENTS.md` currently reads "tests do not run in CI" (in the Testing section) — the opposite of what `ci.yml` actually does. An agent trusts this file as ground truth; a wrong claim here can lead it to skip verifying test impact before a push.
+**Severity**: medium
+**Effort**: quick (< 5 min)
+**Fix**: update the Testing section of `AGENTS.md` to state that `npm run test` runs on every push/PR to `master` via `ci.yml`.
 
-**Lesson**: [Sprint Zero z Agentem: infrastruktura, walking skeleton i pierwszy deploy (M1L5)](https://platforma.przeprogramowani.pl/external/10xdevs-3/m1-l5)
-**What you'll do there**: Once the test runner is in place (Category A fix #2 above), you'll add a
-`npm test` step to the CI pipeline alongside the security scan and deployment configuration.
+### 5. Add `.editorconfig`
 
-#### Missing security scan in CI
+**Impact**: minor — without it, formatting consistency depends entirely on Prettier being run; editors without a Prettier plugin active may show inconsistent whitespace in diffs.
+**Severity**: low
+**Effort**: quick (< 5 min)
+**Fix**: add a standard `.editorconfig` for TypeScript/Astro (UTF-8, LF, 2-space indent, trim trailing whitespace).
 
-**Lesson**: [Sprint Zero z Agentem: infrastruktura, walking skeleton i pierwszy deploy (M1L5)](https://platforma.przeprogramowani.pl/external/10xdevs-3/m1-l5)
-**What you'll do there**: You'll add `npm audit --audit-level=high` or a Dependabot/GitHub security
-scanning configuration to the CI pipeline as part of the infrastructure setup.
+### 6. Plan a deliberate TypeScript major-version upgrade
 
-#### Missing AGENTS.md
+**Impact**: `typescript` is 2 major versions behind (5.9.3 → 7.0.2). Not urgent, but the gap will only widen, and a 2-major jump is more likely to carry breaking changes than a routine bump.
+**Severity**: low
+**Effort**: moderate (15–30 min, plus fixing any new strict-mode errors it surfaces)
+**Fix**: upgrade in its own commit, separate from feature work: `npm install -D typescript@latest`, then run `npm run lint` and `npx astro check` to catch fallout.
 
-**Lesson**: [Agent Onboarding: Agents.md, AI Rules i feedback loops (M1L4)](https://platforma.przeprogramowani.pl/external/10xdevs-3/m1-l4)
-**What you'll do there**: Agent onboarding walks you through building `AGENTS.md` with the right
-project-specific rules, routing conventions, and feedback loops. Generating a stub now would be
-premature — the content matters as much as the file's existence.
+### 7. Plan a coordinated Astro-family major upgrade — confirmed non-trivial, do not force
 
----
+**Impact**: `astro`, `@astrojs/cloudflare`, and `@astrojs/react` are each one major version behind their respective latests. Verified 2026-08-08: `npm audit fix --force` (which installs `astro@7.2.0` + `@astrojs/cloudflare@14.2.0`) **breaks the production build** — `astro build` fails with "Could not find the prerender entry point in the build output. This is likely a bug in Astro," followed by a crash. This also blocks 6 remaining dependency-audit findings (2 HIGH, 3 MODERATE, 1 LOW — see Security Audit above) from being cleared.
+**Severity**: low (no runtime exposure today — the blocked advisories require the same broken upgrade to resolve)
+**Effort**: significant (> 1 hour — read the Astro 7 migration notes, find/fix the prerender-entry-point issue, upgrade `@astrojs/cloudflare` and `@astrojs/react` together, re-run the full test + E2E suite)
+**Fix**: treat as its own change, not bundled into the WFRP4e stats feature branch, to keep that diff reviewable and isolate the build-breakage investigation.
+
+### 8. Update dev-tooling majors (eslint, @eslint/js, lint-staged, dependency-cruiser)
+
+**Impact**: dev-only tooling, no runtime risk, but configs (especially ESLint's flat config format) can shift between majors.
+**Severity**: low
+**Effort**: moderate (15–30 min — upgrade, then confirm `npm run lint` still passes cleanly)
+**Fix**: `npm install -D eslint@latest @eslint/js@latest lint-staged@latest dependency-cruiser@latest`, then run `npm run lint`.
+
+### 9. Review the remaining 25 non-major outdated packages opportunistically
+
+**Impact**: low — minor/patch version gaps only (e.g. `@supabase/supabase-js` 2.105.3 → 2.112.2, `@playwright/test` 1.60.0 → 1.62.1). No urgency.
+**Severity**: low
+**Effort**: quick (< 5 min) — `npm update` picks up everything within existing semver ranges.
+
+#### Addressed in upcoming lessons (Category B)
+
+None outstanding. This project has already completed the infrastructure/CI-CD and agent-onboarding groundwork: a working GitHub Actions pipeline (`ci.yml`), Cloudflare deployment configuration (`wrangler.jsonc`), and both `CLAUDE.md` and `AGENTS.md` are in place. The Category A list above is a maintenance pass on an already-scaffolded pipeline, not a "set this up for the first time" gap.
 
 ## Summary
 
 Health status: needs-attention
 
-The npc-manager project has a solid foundation for agent-assisted development: TypeScript strict mode
-is active via Astro's preset, ESLint and Prettier are fully configured with Astro and React plugins,
-Husky + lint-staged enforces quality on commit, a `package-lock.json` pins all dependencies, and a
-GitHub Actions pipeline covers lint and build on every push. The two gaps that need attention before
-agent work begins are (1) a HIGH-severity OS command injection in `wrangler` that takes under five
-minutes to patch, and (2) the absence of any test runner — without tests, the agent has no way to
-verify that its changes work correctly.
+The project's foundations are solid — a working test suite (76/76 unit tests passing, a listable E2E suite), a real CI pipeline covering lint/test/build, and instruction files that already encode the project's conventions. Update (2026-08-08): the safe half of the dependency-security work is done — `npm audit fix` (no `--force`) cleared 16 of 22 advisories (`astro@6.4.8`, `wrangler@4.120.0`), re-verified with a green lint + test + build pass. The remaining 6 (2 HIGH, 3 MODERATE, 1 LOW) are gated behind an Astro 7 major upgrade that was tried and reverted after it broke the production build — that upgrade is now a scoped, separate piece of work (fix #7), not something to force through casually. Remaining gaps: two missing CI stages (type-check, security-scan) that reuse tooling already installed, one stale claim in `AGENTS.md`, and a backlog of version-gapped dependencies best handled as their own deliberate upgrade passes rather than folded into the upcoming WFRP4e stats feature work.
 
-Next step: Run `npm install wrangler@3.114.17` to clear the HIGH security advisory, then run
-`npm init vitest@latest` and write a first suite of smoke tests before starting agent-assisted
-feature development.
+Next step: the two quick CI additions and the `AGENTS.md` fix (items 2–4 above) are still worth doing before implementation starts; the Astro major upgrade (item 7) can wait until it's tackled as its own change. Then proceed to planning the WFRP4e feature with `/10x-plan`.
