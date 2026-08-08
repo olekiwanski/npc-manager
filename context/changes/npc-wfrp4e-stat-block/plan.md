@@ -512,17 +512,17 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [x] 3.1 `npm run lint` passes on all new/changed files
-- [x] 3.2 `npm run build` emits no TypeScript errors
+- [x] 3.1 `npm run lint` passes on all new/changed files — ac4a1ab
+- [x] 3.2 `npm run build` emits no TypeScript errors — ac4a1ab
 
 #### Manual
 
-- [x] 3.3 GET /api/creature-types category filter and search work
-- [x] 3.4 GET /api/creature-traits search works
-- [x] 3.5 POST /api/npcs with a full WFRP block returns 201 with the block persisted
-- [x] 3.6 POST /api/npcs with an out-of-range attribute returns 400
-- [x] 3.7 PATCH /api/npcs/<id> with a single WFRP field updates only that field
-- [x] 3.8 POST /api/npcs with no WFRP fields behaves exactly as before this change
+- [x] 3.3 GET /api/creature-types category filter and search work — ac4a1ab
+- [x] 3.4 GET /api/creature-traits search works — ac4a1ab
+- [x] 3.5 POST /api/npcs with a full WFRP block returns 201 with the block persisted — ac4a1ab
+- [x] 3.6 POST /api/npcs with an out-of-range attribute returns 400 — ac4a1ab
+- [x] 3.7 PATCH /api/npcs/<id> with a single WFRP field updates only that field — ac4a1ab
+- [x] 3.8 POST /api/npcs with no WFRP fields behaves exactly as before this change — ac4a1ab
 
 ### Phase 4: Derived-Stat Calculation
 
