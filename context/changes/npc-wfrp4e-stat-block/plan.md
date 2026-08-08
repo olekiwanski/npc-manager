@@ -485,28 +485,28 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [x] 1.1 Migration file exists at `supabase/migrations/20260808000000_create_wfrp_stat_block.sql`
-- [x] 1.2 `npx supabase db reset` completes without error
+- [x] 1.1 Migration file exists at `supabase/migrations/20260808000000_create_wfrp_stat_block.sql` — c47562c
+- [x] 1.2 `npx supabase db reset` completes without error — c47562c
 
 #### Manual
 
-- [x] 1.3 `creature_traits`, `skills_talents`, `creature_types` visible in Studio with correct columns and the category index
-- [x] 1.4 RLS enabled on all three new tables with exactly one SELECT policy each; INSERT rejected for authenticated users
-- [x] 1.5 `npcs` shows the five new nullable/defaulted columns; existing/new name-only NPCs unaffected
-- [x] 1.6 Deleting a `creature_types` row sets referencing NPCs' `wfrp_creature_type_id` to null
+- [x] 1.3 `creature_traits`, `skills_talents`, `creature_types` visible in Studio with correct columns and the category index — c47562c
+- [x] 1.4 RLS enabled on all three new tables with exactly one SELECT policy each; INSERT rejected for authenticated users — c47562c
+- [x] 1.5 `npcs` shows the five new nullable/defaulted columns; existing/new name-only NPCs unaffected — c47562c
+- [x] 1.6 Deleting a `creature_types` row sets referencing NPCs' `wfrp_creature_type_id` to null — c47562c
 
 ### Phase 2: Seed Data
 
 #### Automated
 
-- [ ] 2.1 `npx supabase db reset` completes without error (seed runs after migrations)
-- [ ] 2.2 Row counts in `creature_traits`/`creature_types` match the source files
+- [x] 2.1 `npx supabase db reset` completes without error (seed runs after migrations)
+- [x] 2.2 Row counts in `creature_traits`/`creature_types` match the source files
 
 #### Manual
 
-- [ ] 2.3 All ~90+ Creature Traits visible with correct name/description/takes_value
-- [ ] 2.4 Spot-checked creature_types rows (Wampiry, Trolle, Ludzie) match source exactly
-- [ ] 2.5 No orphaned trait references in default_traits/suggested_traits
+- [x] 2.3 All ~90+ Creature Traits visible with correct name/description/takes_value
+- [x] 2.4 Spot-checked creature_types rows (Wampiry, Trolle, Ludzie) match source exactly
+- [x] 2.5 No orphaned trait references in default_traits/suggested_traits
 
 ### Phase 3: Types & API Routes
 
