@@ -26,6 +26,11 @@ function npc(overrides: Partial<Npc>): Npc {
     traits: null,
     created_at: "2026-06-04T00:00:00Z",
     updated_at: "2026-06-04T00:00:00Z",
+    wfrp_creature_type_id: null,
+    wfrp_attributes: null,
+    wfrp_traits: [],
+    wfrp_skills_talents: [],
+    wfrp_zyw_overridden: false,
     ...overrides,
   };
 }

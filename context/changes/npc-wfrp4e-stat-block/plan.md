@@ -499,30 +499,30 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [x] 2.1 `npx supabase db reset` completes without error (seed runs after migrations)
-- [x] 2.2 Row counts in `creature_traits`/`creature_types` match the source files
+- [x] 2.1 `npx supabase db reset` completes without error (seed runs after migrations) — ab45421
+- [x] 2.2 Row counts in `creature_traits`/`creature_types` match the source files — ab45421
 
 #### Manual
 
-- [x] 2.3 All ~90+ Creature Traits visible with correct name/description/takes_value
-- [x] 2.4 Spot-checked creature_types rows (Wampiry, Trolle, Ludzie) match source exactly
-- [x] 2.5 No orphaned trait references in default_traits/suggested_traits
+- [x] 2.3 All ~90+ Creature Traits visible with correct name/description/takes_value — ab45421
+- [x] 2.4 Spot-checked creature_types rows (Wampiry, Trolle, Ludzie) match source exactly — ab45421
+- [x] 2.5 No orphaned trait references in default_traits/suggested_traits — ab45421
 
 ### Phase 3: Types & API Routes
 
 #### Automated
 
-- [ ] 3.1 `npm run lint` passes on all new/changed files
-- [ ] 3.2 `npm run build` emits no TypeScript errors
+- [x] 3.1 `npm run lint` passes on all new/changed files
+- [x] 3.2 `npm run build` emits no TypeScript errors
 
 #### Manual
 
-- [ ] 3.3 GET /api/creature-types category filter and search work
-- [ ] 3.4 GET /api/creature-traits search works
-- [ ] 3.5 POST /api/npcs with a full WFRP block returns 201 with the block persisted
-- [ ] 3.6 POST /api/npcs with an out-of-range attribute returns 400
-- [ ] 3.7 PATCH /api/npcs/<id> with a single WFRP field updates only that field
-- [ ] 3.8 POST /api/npcs with no WFRP fields behaves exactly as before this change
+- [x] 3.3 GET /api/creature-types category filter and search work
+- [x] 3.4 GET /api/creature-traits search works
+- [x] 3.5 POST /api/npcs with a full WFRP block returns 201 with the block persisted
+- [x] 3.6 POST /api/npcs with an out-of-range attribute returns 400
+- [x] 3.7 PATCH /api/npcs/<id> with a single WFRP field updates only that field
+- [x] 3.8 POST /api/npcs with no WFRP fields behaves exactly as before this change
 
 ### Phase 4: Derived-Stat Calculation
 

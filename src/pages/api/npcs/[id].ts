@@ -11,10 +11,41 @@ const json = (status: number, body: unknown) =>
     headers: { "Content-Type": "application/json" },
   });
 
+const wfrpAttributesSchema = z.object({
+  sz: z.number().int().min(0).max(100),
+  ww: z.number().int().min(0).max(100),
+  us: z.number().int().min(0).max(100),
+  s: z.number().int().min(0).max(100),
+  wt: z.number().int().min(0).max(100),
+  i: z.number().int().min(0).max(100),
+  zw: z.number().int().min(0).max(100),
+  zr: z.number().int().min(0).max(100),
+  int: z.number().int().min(0).max(100),
+  sw: z.number().int().min(0).max(100),
+  ogd: z.number().int().min(0).max(100),
+  zyw: z.number().int().min(0).max(100),
+});
+
+const wfrpTraitAssignmentSchema = z.object({
+  trait_id: z.uuid(),
+  value: z.string().max(200).nullish(),
+  source: z.enum(["template", "custom"]),
+});
+
+const wfrpSkillTalentAssignmentSchema = z.object({
+  id: z.uuid(),
+  value: z.string().max(200).nullish(),
+});
+
 const updateSchema = z.object({
   name: z.string().min(1, "Name is required").max(200, "Name must be 200 characters or fewer").optional(),
   role: z.string().max(200, "Role must be 200 characters or fewer").nullish(),
   traits: z.string().max(2000, "Traits must be 2000 characters or fewer").nullish(),
+  wfrp_creature_type_id: z.uuid().nullish(),
+  wfrp_attributes: wfrpAttributesSchema.nullish(),
+  wfrp_traits: z.array(wfrpTraitAssignmentSchema).nullish(),
+  wfrp_skills_talents: z.array(wfrpSkillTalentAssignmentSchema).nullish(),
+  wfrp_zyw_overridden: z.boolean().nullish(),
 });
 
 export const PATCH: APIRoute = async (context) => {
