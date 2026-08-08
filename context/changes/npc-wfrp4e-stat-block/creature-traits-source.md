@@ -1,0 +1,81 @@
+# Creature Traits (Cechy Stworzeń) — seed source
+
+Source: user-transcribed from the WFRP4e core rulebook's "Cechy Stworzeń" appendix. This is the authoritative content for Phase 2 (Seed Data) — parse each entry into a `creature_traits` row (`name`, `description`, `takes_value`). Format varies per entry: some take no parameter, some take a number (e.g. `Broń +Obrażenia`, `Pancerz (wartość)`), some take free text (e.g. `Choroba (typ)`, `Rozmiar`), and a few take a compound value (e.g. `Zionięcie +Obrażenia (typ)` = damage + type). Per the plan's data-model decision, store the parameter shape informally — `takes_value: true` plus the assignment-level `value` as free text — rather than modeling each parameter type separately.
+
+---
+
+- **Atak Językiem +Obrażenia (Zasięg)**: Chwytny język stworzenia może owijać się wokół ofiary. W swojej Turze stworzenie może wykonać Darmowy Atak dystansowy, wydając 1 Przewagę. Jeśli trafi, cel dostaje 1 Stan Pochwycenie, a jeśli ma mniejszy Rozmiar, zostaje przyciągnięty i Związany Walką. Stworzenie może je wypuścić darmowym atakiem Bronią lub trzymać i rozpocząć Zapasy.
+- **Błogosławiony (różne)**: Stworzenie jest błogosławione i może udzielać Błogosławieństw bóstwa podanego w nawiasie.
+- **Broń +Obrażenia**: Stworzenie używa w walce broni lub własnych zębów bądź pazurów. Broń zadaje podaną wartość Obrażeń (zawiera ona już Bonus z Siły stworzenia, zazwyczaj wynosi 4 + Bonus z Siły).
+- **Choroba (typ)**: Stworzenie przenosi określoną chorobę. Inne postacie muszą wykonać odpowiedni test, by uniknąć zakażenia.
+- **Cuda (różne)**: Stworzenie potrafi czynić Cuda powiązane z bóstwem określonym w nawiasie.
+- **Czempion**: Wyjątkowo skuteczny wojownik. Jeśli wygra Test Przeciwstawny podczas obrony w walce w zwarciu, może zadać Obrażenia, tak jakby to ono atakowało.
+- **Dekoncentrujący**: Rozprasza wrogów np. dziwacznym wyglądem lub powalającym smrodem. Wszystkie żywe cele w odległości równej Bonusowi z Wytrzymałości stworzenia w metrach otrzymują karę -20 do wszystkich testów.
+- **Długi Krok**: Porusza się wielkimi krokami (np. istoty czworonożne). Podczas biegu Szybkość Biegu jest mnożona przez 1,5.
+- **Dusiciel**: Potrafi ściskać i miażdżyć ofiary. Każde udane trafienie daje celowi Stan Pochwycenie, pozwalając stworzeniu wejść w Chwyt.
+- **Duży**: Stworzenie jest dużym okazem swojego gatunku. Zapewnia to modyfikatory +10 do Siły i Wytrzymałości oraz -5 do Zwinności.
+- **Elita**: Doświadczony weteran. Zyskuje premię +20 do Walki Wręcz, Umiejętności Strzeleckich i Siły Woli.
+- **Eteryczny**: Ma niematerialną postać, przenika przez fizyczne obiekty. Może być ranione wyłącznie za pomocą ataków magicznych.
+- **Furia**: Może wydać wszystkie zebrane Przewagi (minimum 1), by zyskać Nienawiść wobec przeciwników w walce wręcz. Jeśli uzbiera przynajmniej 3 Przewagi, wydanie ich pozwala wpaść w Szał Bojowy.
+- **Głupi**: Jeśli nie ma w pobliżu mądrzejszych sojuszników, stwór musi na początku każdej rundy zdać Łatwy (+40) Test Inteligencji. Porażka oznacza dezorientację – stwór ślini się, dłubie w nosie i traci w tej turze Ruch oraz Akcję.
+- **Groza (wartość)**: Stworzenie wzbudza nadnaturalną Grozę o podanym poziomie.
+- **Konstrukt**: Magiczny, bezrozumny twór. Nie posiada Inteligencji, Siły Woli ani Ogłady. Bez kontroli czarodzieja błąka się bezmyślnie za nurtami magii (chyba że ma cechę Terytorialny). Jego ataki są Magiczne, a do obliczania Żywotności zamiast BSW stosuje się Bonus z Siły.
+- **Lęk (Obiekt)**: Przy spotkaniu z określonym Obiektem odczuwa Strach (0).
+- **Lodowaty Uścisk**: Kosztem 2 Przewag i Akcji wykonuje Test Przeciwstawny Walki Wręcz przeciwko WW lub Unikowi celu. Wygrana zadaje celowi 1k10+PS obrażeń, ignorujących pancerz i Bonus z Wytrzymałości. Atak jest Magiczny.
+- **Macki (wartość)**: Stworzenie ma określoną liczbę macek i zyskuje darmowy atak na każdą z nich (obrażenia zawierają Bonus z Siły). Udany atak daje celowi Stan Pochwycenie i pozwala na Zapasy z użyciem darmowego ataku macki.
+- **Magiczny**: Ataki stwora liczą się jako Magiczne i ranią istoty odporne na zwykły oręż.
+- **Mieszkaniec Lasu**: W lesie dodaje Bonus ze Zwinności do PS wszystkich testów Wspinaczki i Skradania.
+- **Mutacja**: Stworzenie posiada losową mutację fizyczną z Tabeli Spaczenia Fizycznego.
+- **Nie Czuje Bólu**: Ignoruje wszelkie kary z Ran Krytycznych (z wyjątkiem Amputacji), choć wciąż otrzymuje normalne Stany.
+- **Nie do Zdarcia**: Rany Krytyczne (oprócz śmierci) mogą być uleczone przez dopasowanie i przymocowanie straconych części ciała. Nawet w przypadku zgonu, jeśli ciało jest kompletne, stwór wykonuje na początku rundy (przez BWt rund) Test Odporności z PS 6 – sukces przywraca go do życia z 1 punktem Ży.
+- **Nienawiść (Obiekt)**: Naprawdę nienawidzi wskazanego Obiektu.
+- **Niestabilny**: Magia spajająca ciało słabnie, gdy stwór kończy rundę związany walką z wrogiem o wyższej Przewadze. Otrzymuje rany równe różnicy Przewag, a przy 0 ranach "umiera".
+- **Niewrażliwość (rodzaj)**: Całkowicie ignoruje dany rodzaj Obrażeń (np. trucizna, magia) oraz powiązane z nimi Rany Krytyczne.
+- **Niewrażliwość na Psychologię**: Całkowicie ignoruje zasady psychologii.
+- **Ochrona (wartość)**: Rzut 1k10 po każdym ciosie; wynik równy lub wyższy od podanej wartości ignoruje cios (nawet Trafienie Krytyczne).
+- **Płochliwy**: Hałas lub magia wywołują u stwora natychmiastowe zyskanie +3 Stanów Panika.
+- **Przebiegły**: Otrzymuje stałą premię +10 do Ogłady, Inteligencji i Inicjatywy.
+- **Przywódca**: Dodaje +10 do Ogłady i Siły Woli (cecha niedostępna dla zwierząt).
+- **Regeneracja**: Jeśli ma ponad 0 Żywotności, na początku rundy automatycznie leczy 1k10 Ży. Przy 0 Ży leczy 1 ranę na rzut 8+ na kości k10. Wynik 10 leczy też wybraną Ranę Krytyczną.
+- **Rozmiar**: Określa współczynnik wielkości i wzór na Żywotność (Drobny, Niewielki, Mały, Średni, Duży, Wielki, Monstrualny).
+- **Rój**: Chmara stworów działająca wspólnie. Ignoruje psychologię i Związanie walką przy Ruchu. Zadaje 1 automatyczną ranę wrogom związanym walką na koniec rundy. Ma 5-krotnie większą Żywotność, +10 do WW, a strzelanie do niego ma modyfikator +40. Ignoruje zasady Rozmiaru.
+- **Rzucanie Czarów (różne)**: Potrafi rzucać wszystkie zaklęcia z podanej w nawiasie Tradycji.
+- **Sieć (wartość)**: Trafienie nakłada 1 Stan Pochwycenie o określonej Sile.
+- **Siłacz**: Ciężki i brutalny stwór. Modyfikuje statystyki: -1 do Szybkości, -10 do Zwinności, +10 do Siły i Wytrzymałości.
+- **Skoczny**: Przy szarży lub biegu podwaja Szybkość i ignoruje przeszkody, przeskakując nad nimi.
+- **Skryty**: Dodaje Bonus ze Zwinności do PS wszystkich testów Skradania.
+- **Spaczenie Umysłu**: Posiada losowe zepsucie psychiczne z Tabeli Zepsucia Psychicznego.
+- **Spaczenie (siła)**: Stworzenie jest napiętnowane przez Chaos lub mroczną magię (siła podana w nawiasie, np. Pomniejsze / Umiarkowane / Potężne).
+- **Sprytny**: Dodaje +20 do Inteligencji i +10 do Inicjatywy.
+- **Staje Dęba**: Wykonuje atak Tupnięciem jako część swojego Ruchu (jeśli jest większe od przeciwnika).
+- **Strach (wartość)**: Wywołuje Strach o określonej wartości.
+- **Strzelanie +Obrażenia (Zasięg)**: Stworzenie dysponuje bronią dystansową zadającą wskazane Obrażenia na dany Zasięg w metrach.
+- **Szał Bojowy**: Stworzenie potrafi wpadać w Szał Bojowy.
+- **Szybki**: Daje modyfikatory +1 do Szybkości i +10 do Zwinności.
+- **Terytorialny**: Walczy do śmierci w obronie wybranego obszaru i zazwyczaj nie ściga wrogów poza jego granice.
+- **Uprzedzenie (Obiekt)**: Odczuwa głęboką niechęć wobec określonego Obiektu.
+- **Wampiryczny**: Żywi się krwią. Każde udane Ugryzienie leczy stwora o tyle Żywotności, ile traci jego ofiara (jest to jedyny sposób jego leczenia).
+- **Widzenie w Ciemności**: Posiada talent Widzenie w Ciemności.
+- **Widzenie w Mroku**: Widzi w ciemnościach jak w świetle dziennym.
+- **Wojowniczy**: Dopóki posiada więcej Przewag niż jego przeciwnik, staje się całkowicie niewrażliwy na efekty psychologiczne.
+- **Wrogość (Obiekt)**: Stworzenie naprawdę nie lubi określonego Obiektu.
+- **Wspinacz**: Porusza się z pełną Szybkością po ścianach oraz sufitach i automatycznie zdaje testy Wspinaczki.
+- **Zimnokrwisty**: Może odwrócić każdy nieudany Test Siły Woli.
+- **Zionięcie +Obrażenia (typ)**: Kosztem 2 Przewag wykonuje Darmowy Atak Zionięciem na cel w promieniu 20 + BWt metrów (trafia też wszystkich w promieniu BS metrów wokół celu oraz na linii strzału). Przeprowadza się Przeciwstawny Test US stwora przeciwko Unikowi wszystkich objętych nim celów. Typy zionięć: Dym (zasłania widok przez BWt Rund), Elektryczność (ignoruje pancerz, nakłada Oszołomienie), Kwas (broń i pancerz celów otrzymują 1 punkt Uszkodzeń), Ogień (ignoruje pancerz, nakłada Podpalenie), Trucizna (ignoruje pancerz, nakłada Zatrucie), Zimno (nakłada 1 Stan Oszołomiony za każde 5 odniesionych Ran).
+- **Bagnołaz**: Stworzenie na bagnie jest w swoim żywiole. Nie dostaje kar do ruchu za przemieszczanie się po bagnistym podłożu.
+- **Demoniczny (Próg)**: Esencję stworzenia stanowi surowa magia, a w jego żyłach płynie paskudna posoka. Demoniczne stwory nie muszą zaspokajać normalnych potrzeb życiowych. Wszystkie ich ataki są Magiczne. Kiedy stworzenie zostanie trafione, rzuć 1k10 – jeśli wynik jest równy lub wyższy od progu, cios zostaje zignorowany (nawet Trafienie Krytyczne). Przy 0 Żywotności dusza demona natychmiast powraca do Królestw Chaosu, a stwór zostaje usunięty z gry.
+- **Ożywieniec**: Ożywieńcy nie są ani żywi, ani martwi — nie potrzebują powietrza, jedzenia ani wody. Ta cecha jest używana głównie wtedy, gdy czary, cuda lub inne zdolności oddziałują wyłącznie na Ożywieńców.
+- **Pancerz (wartość)**: Stworzenie chronione jest przez pancerz lub grubą skórę. Zapewnia tyle Punktów Pancerza (PP), ile wynosi podana wartość, na wszystkich Miejscach Trafień.
+- **Petryfikujące Spojrzenie**: Spojrzenie stworzenia potrafi zamienić ciało w kamień. W ramach swojej Akcji stworzenie może wydać wszystkie Przewagi (minimum 1), aby użyć spojrzenia. Wykonuje się Test Przeciwstawny Umiejętności Strzeleckich stwora przeciwko Inicjatywie celu (dodając +1 PS za każdą wydaną Przewagę). Ofiara otrzymuje 1 Stan Oszołomienie za każde 2 PS, o które wygrało stworzenie. Jeśli stwór wygra o co najmniej 6 PS, cel zostaje nieodwracalnie zamieniony w kamień. Czarodzieje mogą bronić się Testem Języka (Magicznego) zamiast Inicjatywy.
+- **Rogi +Obrażenia (typ)**: Stworzenie ma rogi lub inne ostre wyrostki. Gdy stworzenie zyskuje Przewagę na skutek Szarżowania, może wykonać Darmowy Atak swoimi Rogami, zadając podaną wartość Obrażeń (zawierającą już Bonus z Siły stworzenia).
+- **Zakażony**: Skóra stworzenia jest pełna gryzących pcheł lub innych pasożytów. Wszyscy przeciwnicy otrzymują karę -10 do trafienia w walce w zwarciu, ponieważ gryzące stworzenia rozpraszają ich i irytują.
+- **Zaraza**: Stworzenie (lub jego broń) przenosi paskudną infekcję. Jeśli zada ono jakiekolwiek obrażenia żyjącemu przeciwnikowi, cel musi zdać Łatwy (+40) Test Odporności, by nie nabawić się Ropiejącej Rany.
+- **Ziemnowodny**: Stworzenie doskonale radzi sobie w wodzie. Może dodać swój Bonus ze Zwinności do PS wszystkich testów Pływania oraz porusza się w wodzie z pełną Szybkością.
+- **Zwierzęcy**: Stworzenie jest nierozumne i nie potrafi posługiwać się mową. Unika ognia i otrzymuje Stan Panika, jeśli zostanie nim trafione. W obronie używa wyłącznie Umiejętności Unik. Jeśli straci ponad połowę Żywotności, spróbuje uciec (chyba że broni młodych, jest osaczone lub ma cechę Terytorialny). Nie posiada cechy Ogłada.
+- **Żarłoczny**: Stworzenie nieustannie pożąda świeżego mięsa. Jeśli zabije lub unieruchomi żywego przeciwnika (albo natknie się na świeże zwłoki), musi zdać Przeciętny (+20) Test Siły Woli. Porażka oznacza, że stwór natychmiast zaczyna ucztować, tracąc swoją kolejną Akcję oraz Ruch.
+- **Tropiciel**: Cecha opcjonalna m.in. u wilków, hydr czy wampirów (strona 343).
+- **Twardy**: Standardowa cecha olbrzymów oraz trolli (strona 342).
+- **Twardziel**: Powszechna cecha stworzeń, może być przypisywana w celu zwiększenia odporności (strona 342).
+- **Ugryzienie**: Atak naturalny posiadany przez większość drapieżników i potworów, np. pająki, bazyliszki, gryfy, trolle (strona 342).
+- **Upiorne Wycie**: Przerażająca zdolność paraliżująca, wizytówka Upiornych Płaczek (strona 342).
+- **Wyszkolony (rodzaj)**: Cecha zwierząt domowych i bojowych, definiująca ich przeznaczenie (np. Bojowy, Wierzchowiec, Ujarzmiony) (strona 343).
