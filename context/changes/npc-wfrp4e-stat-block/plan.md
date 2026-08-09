@@ -528,9 +528,9 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [ ] 4.1 `npm run lint` passes
-- [ ] 4.2 `npm run build` emits no TypeScript errors
-- [ ] 4.3 `npm run test` — wfrp-derived-stats.test.ts passes for all seeded entries or documented exceptions
+- [x] 4.1 `npm run lint` passes — 01d47bb
+- [x] 4.2 `npm run build` emits no TypeScript errors — 01d47bb
+- [x] 4.3 `npm run test` — wfrp-derived-stats.test.ts passes for all seeded entries or documented exceptions — 01d47bb
 
 #### Manual
 
