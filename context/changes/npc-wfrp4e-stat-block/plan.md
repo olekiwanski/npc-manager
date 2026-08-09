@@ -546,12 +546,12 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Manual
 
-- [ ] 5.4 Creature type search finds entries across categories
-- [ ] 5.5 Selecting a type on a pristine form auto-fills with no dialog
-- [ ] 5.6 Editing then re-selecting a type shows the confirm dialog; cancel preserves edits
-- [ ] 5.7 Editing Siła updates Żywotność live; unlocking stops auto-recalculation
-- [ ] 5.8 Adding/removing custom traits and skills/talents works correctly
-- [ ] 5.9 Saving an NPC with no WFRP section touched is unchanged from before this change
+- [x] 5.4 Creature type search finds entries across categories — d0153fc
+- [x] 5.5 Selecting a type on a pristine form auto-fills with no dialog — d0153fc
+- [x] 5.6 Editing then re-selecting a type shows the confirm dialog; cancel preserves edits — d0153fc
+- [x] 5.7 Editing Siła updates Żywotność live; unlocking stops auto-recalculation — d0153fc
+- [x] 5.8 Adding/removing custom traits and skills/talents works correctly — d0153fc
+- [x] 5.9 Saving an NPC with no WFRP section touched is unchanged from before this change — d0153fc
 
 ### Phase 6: NPC Detail Page Display + Non-Regression
 
