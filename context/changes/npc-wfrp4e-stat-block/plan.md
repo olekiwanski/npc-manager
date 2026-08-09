@@ -540,9 +540,9 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [ ] 5.1 `npm run lint` passes on all new/changed files
-- [ ] 5.2 `npm run build` emits no TypeScript errors
-- [ ] 5.3 `npm run test` — all new component tests pass
+- [x] 5.1 `npm run lint` passes on all new/changed files — 06441a0
+- [x] 5.2 `npm run build` emits no TypeScript errors — 06441a0
+- [x] 5.3 `npm run test` — all new component tests pass — 06441a0
 
 #### Manual
 
