@@ -534,7 +534,7 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Manual
 
-- [ ] 4.4 Hand-recomputed Żywotność for 2–3 creature types matches the function's output
+- [x] 4.4 Hand-recomputed Żywotność for 2–3 creature types matches the function's output — 01d47bb
 
 ### Phase 5: React Components — Stat Block Editor
 
