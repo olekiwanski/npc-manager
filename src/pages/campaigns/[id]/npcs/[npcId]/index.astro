@@ -3,7 +3,22 @@ import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
 import { RelationshipSection } from "@/components/relationships/RelationshipSection";
 import { NpcReaction } from "@/components/npcs/NpcReaction";
-import type { Npc, Relationship } from "@/types";
+import type { CreatureTrait, CreatureType, Npc, Relationship, SkillTalent, WfrpAttributes } from "@/types";
+
+const ATTRIBUTE_LABELS: { key: keyof WfrpAttributes; label: string }[] = [
+  { key: "sz", label: "Sz" },
+  { key: "ww", label: "WW" },
+  { key: "us", label: "US" },
+  { key: "s", label: "S" },
+  { key: "wt", label: "Wt" },
+  { key: "i", label: "I" },
+  { key: "zw", label: "Zw" },
+  { key: "zr", label: "Zr" },
+  { key: "int", label: "Int" },
+  { key: "sw", label: "SW" },
+  { key: "ogd", label: "Ogd" },
+  { key: "zyw", label: "Żyw" },
+];
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (!supabase) {
@@ -43,6 +58,53 @@ if (relationshipsResult.error) {
   return new Response("Failed to load relationships", { status: 500 });
 }
 const relationships = relationshipsResult.data as Relationship[];
+
+// WFRP stat block: resolve the creature type name and dictionary entries for
+// the persisted trait/skill assignments in the same SSR pass. Skipped
+// entirely when the NPC has no stat block — the page renders identically to
+// before this change in that case.
+const attributes = npc.wfrp_attributes;
+let creatureTypeName: string | null = null;
+let resolvedTraits: { name: string; description: string; value: string | null }[] = [];
+let resolvedSkillsTalents: { name: string; description: string; value: string | null }[] = [];
+
+if (attributes) {
+  if (npc.wfrp_creature_type_id) {
+    const typeResult = await supabase.from("creature_types").select().eq("id", npc.wfrp_creature_type_id).maybeSingle();
+    const typeRow = typeResult.data as CreatureType | null;
+    creatureTypeName = typeRow?.name ?? null;
+  }
+
+  if (npc.wfrp_traits.length > 0) {
+    const traitIds = npc.wfrp_traits.map((assignment) => assignment.trait_id);
+    const traitsResult = await supabase.from("creature_traits").select().in("id", traitIds);
+    const traitRows = (traitsResult.data ?? []) as CreatureTrait[];
+    const traitsById = new Map(traitRows.map((trait) => [trait.id, trait]));
+    resolvedTraits = npc.wfrp_traits.map((assignment) => {
+      const trait = traitsById.get(assignment.trait_id);
+      return {
+        name: trait?.name ?? assignment.trait_id,
+        description: trait?.description ?? "",
+        value: assignment.value,
+      };
+    });
+  }
+
+  if (npc.wfrp_skills_talents.length > 0) {
+    const skillIds = npc.wfrp_skills_talents.map((assignment) => assignment.id);
+    const skillsResult = await supabase.from("skills_talents").select().in("id", skillIds);
+    const skillRows = (skillsResult.data ?? []) as SkillTalent[];
+    const skillsById = new Map(skillRows.map((entry) => [entry.id, entry]));
+    resolvedSkillsTalents = npc.wfrp_skills_talents.map((assignment) => {
+      const entry = skillsById.get(assignment.id);
+      return {
+        name: entry?.name ?? assignment.id,
+        description: entry?.description ?? "",
+        value: assignment.value,
+      };
+    });
+  }
+}
 ---
 
 <Layout title={npc.name}>
@@ -84,6 +146,54 @@ const relationships = relationshipsResult.data as Relationship[];
             <p class="whitespace-pre-wrap text-stone-300/90">{npc.traits}</p>
           ) : (
             <p class="text-stone-300/40 italic">No traits</p>
+          )
+        }
+
+        {
+          attributes && (
+            <div class="mt-6 border-t border-white/10 pt-6">
+              <h2 class="mb-2 text-sm font-semibold tracking-wide text-stone-300/60 uppercase">WFRP4e Stats</h2>
+              {creatureTypeName && <p class="mb-3 text-amber-200">{creatureTypeName}</p>}
+
+              <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                {ATTRIBUTE_LABELS.map(({ key, label }) => (
+                  <div class="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center">
+                    <div class="text-[11px] text-stone-400 uppercase">{label}</div>
+                    <div class="text-sm font-medium text-white">{attributes[key]}</div>
+                  </div>
+                ))}
+              </div>
+
+              {resolvedTraits.length > 0 && (
+                <div class="mt-4">
+                  <h3 class="mb-2 text-xs font-medium tracking-wide text-stone-400 uppercase">Creature Traits</h3>
+                  <ul class="space-y-1.5">
+                    {resolvedTraits.map((trait) => (
+                      <li class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                        <span class="text-sm font-medium text-white">{trait.name}</span>
+                        {trait.value && <span class="ml-2 text-xs text-stone-300/70">({trait.value})</span>}
+                        {trait.description && <p class="mt-1 text-xs text-stone-400">{trait.description}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {resolvedSkillsTalents.length > 0 && (
+                <div class="mt-4">
+                  <h3 class="mb-2 text-xs font-medium tracking-wide text-stone-400 uppercase">Skills &amp; Talents</h3>
+                  <ul class="space-y-1.5">
+                    {resolvedSkillsTalents.map((entry) => (
+                      <li class="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                        <span class="text-sm font-medium text-white">{entry.name}</span>
+                        {entry.value && <span class="ml-2 text-xs text-stone-300/70">({entry.value})</span>}
+                        {entry.description && <p class="mt-1 text-xs text-stone-400">{entry.description}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )
         }
       </div>
