@@ -23,7 +23,9 @@ const wfrpAttributesSchema = z.object({
   int: z.number().int().min(0).max(100),
   sw: z.number().int().min(0).max(100),
   ogd: z.number().int().min(0).max(100),
-  zyw: z.number().int().min(0).max(100),
+  // Żywotność is a derived wound pool, not a percentile characteristic — it
+  // legitimately exceeds 100 for large creatures (Smoki default to 104).
+  zyw: z.number().int().min(0).max(999),
 });
 
 const wfrpTraitAssignmentSchema = z.object({
