@@ -11,11 +11,44 @@ const json = (status: number, body: unknown) =>
     headers: { "Content-Type": "application/json" },
   });
 
+const wfrpAttributesSchema = z.object({
+  sz: z.number().int().min(0).max(100),
+  ww: z.number().int().min(0).max(100),
+  us: z.number().int().min(0).max(100),
+  s: z.number().int().min(0).max(100),
+  wt: z.number().int().min(0).max(100),
+  i: z.number().int().min(0).max(100),
+  zw: z.number().int().min(0).max(100),
+  zr: z.number().int().min(0).max(100),
+  int: z.number().int().min(0).max(100),
+  sw: z.number().int().min(0).max(100),
+  ogd: z.number().int().min(0).max(100),
+  // Żywotność is a derived wound pool, not a percentile characteristic — it
+  // legitimately exceeds 100 for large creatures (Smoki default to 104).
+  zyw: z.number().int().min(0).max(999),
+});
+
+const wfrpTraitAssignmentSchema = z.object({
+  trait_id: z.uuid(),
+  value: z.string().max(200).nullish(),
+  source: z.enum(["template", "custom"]),
+});
+
+const wfrpSkillTalentAssignmentSchema = z.object({
+  id: z.uuid(),
+  value: z.string().max(200).nullish(),
+});
+
 const createSchema = z.object({
   campaign_id: z.uuid("Invalid campaign id"),
   name: z.string().min(1, "Name is required").max(200, "Name must be 200 characters or fewer"),
   role: z.string().max(200, "Role must be 200 characters or fewer").nullish(),
   traits: z.string().max(2000, "Traits must be 2000 characters or fewer").nullish(),
+  wfrp_creature_type_id: z.uuid().nullish(),
+  wfrp_attributes: wfrpAttributesSchema.nullish(),
+  wfrp_traits: z.array(wfrpTraitAssignmentSchema).nullish(),
+  wfrp_skills_talents: z.array(wfrpSkillTalentAssignmentSchema).nullish(),
+  wfrp_zyw_overridden: z.boolean().nullish(),
 });
 
 export const POST: APIRoute = async (context) => {
@@ -58,6 +91,11 @@ export const POST: APIRoute = async (context) => {
       name: parsed.data.name,
       role: parsed.data.role ?? null,
       traits: parsed.data.traits ?? null,
+      wfrp_creature_type_id: parsed.data.wfrp_creature_type_id ?? null,
+      wfrp_attributes: parsed.data.wfrp_attributes ?? null,
+      wfrp_traits: parsed.data.wfrp_traits ?? [],
+      wfrp_skills_talents: parsed.data.wfrp_skills_talents ?? [],
+      wfrp_zyw_overridden: parsed.data.wfrp_zyw_overridden ?? false,
     })
     .select()
     .single();

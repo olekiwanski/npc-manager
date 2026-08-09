@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { WfrpStatsSection, type WfrpStateBlock } from "@/components/npcs/WfrpStatsSection";
 import type { Npc } from "@/types";
 
 interface NpcFormProps {
@@ -26,6 +27,7 @@ export function NpcForm({ campaignId, npc }: NpcFormProps) {
   const [traits, setTraits] = useState(npc?.traits ?? "");
   const [errors, setErrors] = useState<{ name?: string; role?: string; traits?: string }>({});
   const [serverError, setServerError] = useState<string | null>(null);
+  const [wfrpBlock, setWfrpBlock] = useState<WfrpStateBlock | null>(null);
 
   function validate() {
     const next: typeof errors = {};
@@ -58,6 +60,9 @@ export function NpcForm({ campaignId, npc }: NpcFormProps) {
     };
     if (!isEdit) {
       payload.campaign_id = campaignId;
+    }
+    if (wfrpBlock) {
+      Object.assign(payload, wfrpBlock);
     }
 
     try {
@@ -132,6 +137,8 @@ export function NpcForm({ campaignId, npc }: NpcFormProps) {
           </p>
         )}
       </div>
+
+      <WfrpStatsSection npc={npc} onChange={setWfrpBlock} />
 
       <ServerError message={serverError} />
 
