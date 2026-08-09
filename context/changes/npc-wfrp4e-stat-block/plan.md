@@ -557,9 +557,9 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 
 #### Automated
 
-- [ ] 6.1 `npm run build` completes with no errors
-- [ ] 6.2 `npm run lint` passes across all changed files
-- [ ] 6.3 `npm run test` — full suite passes
+- [x] 6.1 `npm run build` completes with no errors — e400c41
+- [x] 6.2 `npm run lint` passes across all changed files — e400c41
+- [x] 6.3 `npm run test` — full suite passes — e400c41
 
 #### Manual
 
@@ -569,3 +569,5 @@ Phase 1 adds the third schema migration (`20260808000000_create_wfrp_stat_block.
 - [ ] 6.7 AI reaction flow still works for both stats and non-stats NPCs
 - [ ] 6.8 Cross-account isolation holds for WFRP data
 - [ ] 6.9 Delete/cascade and list pages behave exactly as before this change
+
+**Paused here.** Automated verification is done and committed (e400c41). Manual verification (6.4–6.9) not yet run — the dev server was stopped mid-session and not restarted. Resume by starting the dev server (`npm run dev`) and, if needed, the local Supabase stack (`npx supabase start`), then work through 6.4–6.9 using Manual Testing Steps 7–10 above as the script.
